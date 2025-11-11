@@ -1,0 +1,9 @@
+#include <iostream>
+#include "hospital.h"
+#include "paciente.h"
+#include "sensor.h"
+#include "sensorSO.h"
+#include "sensorFC.h"
+#include "sensorFR.h"
+#include "sensorTC.h"
+#include "sensorPA.h"

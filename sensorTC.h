@@ -1,0 +1,16 @@
+#ifndef SENSOR_TC_H
+#define SENSOR_TC_H
+#include "sensor.h"
+
+class SensorTemperatura : public Sensor{
+private:
+    double _max;
+    double _min;
+public:
+    SensorTemperatura();
+    ~SensorTemperatura();
+    bool alerta() override;
+    bool exibirInfo() override;
+    void lerValor() override;
+};
+#endif
