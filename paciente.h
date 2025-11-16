@@ -20,6 +20,7 @@ private:
     SensorBatimento* _sensorBatimento;
     SensorRespiratorio* _sensorRespiratorio;
 public:
+    Paciente(); //Construtor padrao necessario para alocar vetor na classe hospital
     Paciente(std::string nome, int idade, std::string sexo);
     ~Paciente();
     int get_id();

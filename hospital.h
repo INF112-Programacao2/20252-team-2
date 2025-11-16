@@ -10,7 +10,7 @@ private:
     std::string _nome;
     Paciente* _paciente;
 public:
-    Hospital(std::string nome);
+    Hospital(std::string nome, int capacidade);
     ~Hospital();
     void cadastrarPaciente(Paciente *p);
     void removerPaciente(int idPaciente);

@@ -5,6 +5,7 @@
 class SensorOxigenio : public Sensor{
 private:
     double _min;
+    double _max;
 public:
     SensorOxigenio();
     ~SensorOxigenio();
