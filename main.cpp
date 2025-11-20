@@ -34,24 +34,66 @@ void simular(Paciente *p, Sensor *sensor)
 int main()
 {
     srand(time(0));
-    int cont = 0;
 
     string nomeHospital;
     int capacidadeHospital;
+    int vezes;
+    int cont = 0;
 
-    cout << "Crie um hospital: (insira nome e capacidade): ";
+    cout << "Crie um hospital(insira nome e capacidade): ";
     cin >> nomeHospital >> capacidadeHospital;
     Hospital *h = new Hospital(nomeHospital, capacidadeHospital);
-    Paciente p("Tiago", 19, "Masculino");
+    
+     time_t b = time(NULL);
 
-    while (true)
-    {
-        string escolha;
+    while(true){
+
+        int escolha;
         cout << "Escolha uma opcao:\n";
         cout << "Cadastrar novo paciente(1)\n";
         cout << "Deletar Paciente(2)\n";
-        cout << "Buscar Paciente(3):\n";
+        cout << "Buscar Paciente(3)\n";
+        cout << "Rodar simulacao(4)\n";
         cin >> escolha;
+
+        string nomepaciente;
+        int idadePaciente;
+        string sexoPaciente;
+        switch (escolha)
+        {
+        case 1:{
+            cout << "Digite: Nome, Idade, M(1)/F(2): ";
+            cin >> nomepaciente >> idadePaciente >> sexoPaciente;
+
+            Paciente *p = new Paciente(nomepaciente, idadePaciente, sexoPaciente);
+            h->cadastrarPaciente(p);
+            break;
+        }
+        case 2:{
+
+        }
+            break;
+        case 3:{
+
+        }
+            break;
+        case 4:{
+            cout << "Insira Numero de simulacoes desejadas: ";
+            cin >> vezes;
+            cont=0;
+            while(cont < vezes){
+                time_t a = time(NULL);
+                if(a-b >= 0.1){
+                b = a;
+                simular(h->get_pacientes()[0], h->get_pacientes()[0]->get_sensorBatimento());
+                cont++;
+                }
+            }
+            break;
+        }
+        default:
+            break;
+        }
     }
 
     return 0;
