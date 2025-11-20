@@ -2,10 +2,12 @@
 #define SENSOR_FC_H
 #include "sensor.h"
 
-class SensorBatimento : public Sensor{
+class SensorBatimento : public Sensor
+{
 private:
     double _max;
     double _min;
+
 public:
     SensorBatimento();
     ~SensorBatimento();

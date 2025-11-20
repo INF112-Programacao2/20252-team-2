@@ -2,10 +2,12 @@
 #define SENSOR_TC_H
 #include "sensor.h"
 
-class SensorTemperatura : public Sensor{
+class SensorTemperatura : public Sensor
+{
 private:
     double _max;
     double _min;
+
 public:
     SensorTemperatura();
     ~SensorTemperatura();

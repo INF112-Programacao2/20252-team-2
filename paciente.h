@@ -7,20 +7,22 @@
 #include <sensorFR.h>
 #include <sensorTC.h>
 
-class Paciente{
+class Paciente
+{
 private:
     int _id;
     std::string _nome;
     int _idade;
     std::string _sexo;
     std::string _diagnostico;
-    SensorPressao* _sensorPressao;
-    SensorTemperatura* _sensorTemperatura;
-    SensorOxigenio* _sensorOxigenio;
-    SensorBatimento* _sensorBatimento;
-    SensorRespiratorio* _sensorRespiratorio;
+    SensorPressao *_sensorPressao;
+    SensorTemperatura *_sensorTemperatura;
+    SensorOxigenio *_sensorOxigenio;
+    SensorBatimento *_sensorBatimento;
+    SensorRespiratorio *_sensorRespiratorio;
+
 public:
-    Paciente(); //Construtor padrao necessario para alocar vetor na classe hospital
+    Paciente(); // Construtor padrao necessario para alocar vetor na classe hospital
     Paciente(std::string nome, int idade, std::string sexo);
     ~Paciente();
     int get_id();

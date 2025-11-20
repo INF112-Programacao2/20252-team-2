@@ -2,11 +2,13 @@
 #define SENSOR_H
 #include <iostream>
 
-class Sensor{
+class Sensor
+{
 protected:
     std::string _tipo;
     double _valor;
     std::string _unidade;
+
 public:
     Sensor(std::string tipo, double valor, std::string unidade);
     ~Sensor();

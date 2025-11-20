@@ -2,10 +2,12 @@
 #define SENSOR_FR_H
 #include "sensor.h"
 
-class SensorRespiratorio : public Sensor{
+class SensorRespiratorio : public Sensor
+{
 private:
     double _max;
     double _min;
+
 public:
     SensorRespiratorio();
     ~SensorRespiratorio();
