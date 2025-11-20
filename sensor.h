@@ -8,15 +8,20 @@ protected:
     std::string _tipo;
     double _valor;
     std::string _unidade;
+    double _min;
+    double _max;
 
 public:
-    Sensor(std::string tipo, double valor, std::string unidade);
+    Sensor(std::string tipo, double valor, std::string unidade, double min, double max);
     ~Sensor();
-    void set_tipo();
     double get_valor();
-    void set_valor(int novoValor);
-    virtual bool alerta();
-    virtual bool exibirInfo();
+    double get_min();
+    double get_max();
+    std::string get_unidade();
+    void set_tipo();
+    void set_valor(double novoValor);
+    virtual bool alerta() const;
+    virtual void exibirInfo() const;
     virtual void lerValor() = 0;
 };
 #endif

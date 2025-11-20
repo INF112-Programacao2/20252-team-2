@@ -5,14 +5,11 @@
 class SensorTemperatura : public Sensor
 {
 private:
-    double _max;
-    double _min;
-
 public:
     SensorTemperatura();
     ~SensorTemperatura();
-    bool alerta() override;
-    bool exibirInfo() override;
+    bool alerta() const override;
+    void exibirInfo() const override;
     void lerValor() override;
 };
 #endif

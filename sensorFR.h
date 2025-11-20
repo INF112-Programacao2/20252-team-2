@@ -5,14 +5,11 @@
 class SensorRespiratorio : public Sensor
 {
 private:
-    double _max;
-    double _min;
-
 public:
     SensorRespiratorio();
     ~SensorRespiratorio();
-    bool alerta() override;
-    bool exibirInfo() override;
+    bool alerta() const override;
+    void exibirInfo() const override;
     void lerValor() override;
 };
 #endif

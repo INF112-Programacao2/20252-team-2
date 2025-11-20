@@ -1,11 +1,14 @@
 #ifndef PACIENTE_H
 #define PACIENTE_H
 #include <iostream>
-#include <sensorFC.h>
-#include <sensorPA.h>
-#include <sensorSO.h>
-#include <sensorFR.h>
-#include <sensorTC.h>
+#include <vector>
+#include <memory>
+#include "sensor.h"
+#include "sensorFC.h"
+#include "sensorPA.h"
+#include "sensorSO.h"
+#include "sensorFR.h"
+#include "sensorTC.h"
 
 class Paciente
 {
@@ -29,5 +32,10 @@ public:
     std::string get_nome();
     int get_idade();
     std::string get_sexo();
+    SensorPressao *get_sensorPressao();
+    SensorTemperatura *get_sensorTemperatura();
+    SensorOxigenio *get_sensorOxigenio();
+    SensorBatimento *get_sensorBatimento();
+    SensorRespiratorio *get_sensorRespiratorio();
 };
 #endif
