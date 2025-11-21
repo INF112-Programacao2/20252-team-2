@@ -1,15 +1,18 @@
-🏥 Sistema de Monitoramento Vital Integrado
+⚕️ Sistema de Monitoramento de Sinais Vitais Hospitalares
+Este projeto visa simular e gerenciar o monitoramento contínuo de sinais vitais de pacientes em um ambiente hospitalar, utilizando uma arquitetura orientada a objetos em C++.
 
-O Contexto:
-Este software simula um ambiente de gestão hospitalar focado no monitoramento intensivo de sinais vitais. O objetivo do sistema é gerenciar a internação de pacientes e acompanhar, em tempo real, a estabilidade fisiológica de cada indivíduo. Diferente de um cadastro estático, o sistema modela a dinamicidade do corpo humano, onde variáveis biológicas oscilam constantemente devido a fatores externos e internos.
-O Funcionamento:
+💡 Sobre o Projeto
+O Sistema de Monitoramento Hospitalar permite o cadastro e a gestão de pacientes, associando a cada um um conjunto de sensores para leitura de dados vitais (Batimento, Temperatura, Oxigênio, etc.). O sistema simula a flutuação desses sinais e emite alertas de emergência quando os valores ultrapassam os limites de segurança pré-definidos. A simulação da variação dos sinais é feita através de cálculos que incluem ruído aleatório e uma tendência de retorno à homeostase.
 
-O núcleo da aplicação consiste em um Hospital com capacidade limitada de leitos, onde o usuário atua como administrador. Ao cadastrar um Paciente, o sistema automaticamente inicializa um conjunto de Sensores especializados (Batimento Cardíaco, Temperatura, Pressão Arterial, Oxigenação e Frequência Respiratória).
 
-A grande inovação do código reside na lógica de Simulação. O sistema não apenas armazena dados, mas calcula variações contínuas nos sensores através de dois conceitos matemáticos implementados:
+📌 Funcionalidades Principais
+Gestão de Pacientes 🧑‍⚕️: Cadastro, busca e remoção de pacientes no hospital.
 
-Ruído: Uma variação aleatória que simula a interferência do ambiente ou instabilidade momentânea.
+Monitoramento por Sensores 📊: Cada paciente possui um conjunto de sensores virtuais para leituras específicas.
 
-Homeostase: Um mecanismo de correção automática que tenta trazer os valores de volta ao equilíbrio.
+Simulação Dinâmica 📈: Atualização periódica dos valores dos sensores, simulando flutuações reais (baseado em ruído e homeostase).
 
-A cada ciclo de verificação, os sensores comparam os valores atuais com as faixas de segurança predefinidas (mínimo e máximo). Se a oscilação combinada do ruído superar a capacidade de homeostase e ultrapassar os limites críticos (como uma saturação de oxigênio abaixo de 95% ou temperatura acima de 38°C), o método alerta() é acionado, notificando imediatamente sobre o estado de emergência.
+Alerta Crítico 🚨: Notificação imediata quando um valor excede a faixa de segurança (_min a _max).
+
+Estrutura Modular 🧩: Uso de herança (Sensor base) para facilitar a adição de novos tipos de sinais vitais.
+
