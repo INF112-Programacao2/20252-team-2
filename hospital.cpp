@@ -27,7 +27,6 @@ void Hospital::removerPaciente(int idPaciente)
     {
         if (_pacientes[i].get_id() == idPaciente)
         {
-
             for (int j = i; j < _qtdPacientes - 1; j++)
             { // Deleta o paciente escolhido e realoca o vetor para nao perder espaco
                 _pacientes[j] = _pacientes[j + 1];
@@ -57,5 +56,10 @@ int Hospital::get_qtdPacientes(){
     return _qtdPacientes;
 }
 Paciente **Hospital::get_pacientes(){
-    return &_pacientes;
+        return &_pacientes;
+}
+
+void Hospital::listarPacientes(){
+    for(int i=0; i<_qtdPacientes ; i++)
+        std::cout << "ID: " << _pacientes[i].get_id() << " NOME: " << _pacientes[i].get_nome() << " IDADE: " << _pacientes[i].get_idade() << " SEXO: " << _pacientes[i].get_sexo() << std::endl;
 }

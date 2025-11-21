@@ -20,5 +20,6 @@ public:
     std::string get_nome();
     int get_qtdPacientes();
     Paciente **get_pacientes();
+    void listarPacientes();
 };
 #endif

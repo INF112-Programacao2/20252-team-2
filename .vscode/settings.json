@@ -46,6 +46,7 @@
         "typeinfo": "cpp",
         "ctime": "cpp",
         "fstream": "cpp",
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "xstring": "cpp"
     }
 }

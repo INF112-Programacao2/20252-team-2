@@ -11,6 +11,8 @@
 #include "sensorPA.h"
 using namespace std;
 
+int idPaciente = 0;
+
 void simular(Paciente *p, Sensor *sensor)
 {
     double var = (sensor->get_max() - sensor->get_min()) / 10;
@@ -59,22 +61,40 @@ int main()
         string nomepaciente;
         int idadePaciente;
         string sexoPaciente;
+        idPaciente++;
+        int idBusca;
         switch (escolha)
         {
         case 1:{
-            cout << "Digite: Nome, Idade, M(1)/F(2): ";
-            cin >> nomepaciente >> idadePaciente >> sexoPaciente;
-
-            Paciente *p = new Paciente(nomepaciente, idadePaciente, sexoPaciente);
+            cout << "Digite: Nome, Idade, M/F: ";
+            cin >> nomepaciente >> idadePaciente >> sexoPaciente;   
+            Paciente *p = new Paciente(idPaciente, nomepaciente, idadePaciente, sexoPaciente);
             h->cadastrarPaciente(p);
             break;
         }
         case 2:{
+            h->listarPacientes();
+            cout << "Digite o ID do paciente a ser deletado: ";
+            cin >> idBusca;
+            h->removerPaciente(idBusca);
+            break;
+           
+            
+            
 
         }
             break;
-        case 3:{
-
+        case 3:{ 
+            cout << "Digite o ID do paciente a ser buscado: ";
+            cin >> idBusca;
+            Paciente* p = h->buscarPaciente(idBusca);
+            if(p != nullptr){
+                cout << "Paciente encontrado: " << p->get_nome() << ", Idade: " << p->get_idade() << ", Sexo: " << p->get_sexo() << endl;
+            } else {
+                cout << "Paciente nao encontrado." << endl;
+            }
+            break;
+             
         }
             break;
         case 4:{

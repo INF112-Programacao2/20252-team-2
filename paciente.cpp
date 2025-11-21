@@ -3,8 +3,8 @@
 
 Paciente::Paciente() {}
 
-Paciente::Paciente(std::string nome, int idade, std::string sexo)
-    : _nome(nome), _idade(idade), _sexo(sexo)
+Paciente::Paciente(int id, std::string nome, int idade, std::string sexo)
+    : _id(id), _nome(nome), _idade(idade), _sexo(sexo)
 {
     _sensorBatimento = new SensorBatimento;
 }
