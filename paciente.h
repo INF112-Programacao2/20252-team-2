@@ -38,4 +38,5 @@ public:
     SensorBatimento *get_sensorBatimento();
     SensorRespiratorio *get_sensorRespiratorio();
 };
+
 #endif
