@@ -22,4 +22,5 @@ public:
     Paciente **get_pacientes();
     void listarPacientes();
 };
+
 #endif
