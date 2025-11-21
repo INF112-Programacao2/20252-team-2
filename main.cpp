@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <cctype>
+#include <string>
 #include "hospital.h"
 #include "paciente.h"
 #include "sensor.h"
@@ -12,6 +14,29 @@
 using namespace std;
 
 int idPaciente = 0;
+string nomepaciente;
+int idadePaciente;
+string sexoPaciente;
+int idBusca;
+
+#include <iostream>
+#include <string>
+using namespace std;
+
+int lerID() {
+    string entrada;
+    int id;
+
+    cout << "Digite o ID do paciente: ";
+    cin >> entrada;
+
+    try {
+        id = stoi(entrada);        // tenta converter
+    } catch (invalid_argument&) {
+        throw runtime_error("Erro: o ID deve ser um numero.");}  
+
+    return id;
+}
 
 void simular(Paciente *p, Sensor *sensor)
 {
@@ -46,7 +71,7 @@ int main()
     cin >> nomeHospital >> capacidadeHospital;
     Hospital *h = new Hospital(nomeHospital, capacidadeHospital);
     
-     time_t b = time(NULL);
+    time_t b = time(NULL);
 
     while(true){
 
@@ -58,11 +83,8 @@ int main()
         cout << "Rodar simulacao(4)\n";
         cin >> escolha;
 
-        string nomepaciente;
-        int idadePaciente;
-        string sexoPaciente;
         idPaciente++;
-        int idBusca;
+
         switch (escolha)
         {
         case 1:{
@@ -84,16 +106,21 @@ int main()
 
         }
             break;
-        case 3:{ 
-            cout << "Digite o ID do paciente a ser buscado: ";
-            cin >> idBusca;
+        case 3:{
+            try {
+            int idBusca = lerID();
             Paciente* p = h->buscarPaciente(idBusca);
-            if(p != nullptr){
-                cout << "Paciente encontrado: " << p->get_nome() << ", Idade: " << p->get_idade() << ", Sexo: " << p->get_sexo() << endl;
+
+            if (p != nullptr) {
+                cout << "Paciente encontrado: " << p->get_nome() << " | Idade: " << p->get_idade() << " | Sexo: " << p->get_sexo() << endl;
             } else {
-                cout << "Paciente nao encontrado." << endl;
+                cout << "Paciente não encontrado.\n";
             }
-            break;
+        }
+        catch (runtime_error &e) {
+            cout << e.what() << endl;
+        }
+        break;
              
         }
             break;
