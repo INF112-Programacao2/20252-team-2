@@ -1,4 +1,5 @@
 🏥 Sistema de Monitoramento Vital Integrado
+
 O Contexto:
 Este software simula um ambiente de gestão hospitalar focado no monitoramento intensivo de sinais vitais. O objetivo do sistema é gerenciar a internação de pacientes e acompanhar, em tempo real, a estabilidade fisiológica de cada indivíduo. Diferente de um cadastro estático, o sistema modela a dinamicidade do corpo humano, onde variáveis biológicas oscilam constantemente devido a fatores externos e internos.
 O Funcionamento:
