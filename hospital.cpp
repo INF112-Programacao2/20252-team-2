@@ -49,17 +49,44 @@ Paciente *Hospital::buscarPaciente(int idPaciente)
     }
     return nullptr; // se nao encontrar
 }
-std::string Hospital::get_nome(){
+std::string Hospital::get_nome()
+{
     return _nome;
 }
-int Hospital::get_qtdPacientes(){
+int Hospital::get_qtdPacientes()
+{
     return _qtdPacientes;
 }
-Paciente **Hospital::get_pacientes(){
-        return &_pacientes;
+Paciente **Hospital::get_pacientes()
+{
+    return &_pacientes;
 }
 
-void Hospital::listarPacientes(){
-    for(int i=0; i<_qtdPacientes ; i++)
+void Hospital::listarPacientes()
+{
+    for (int i = 0; i < _qtdPacientes; i++)
         std::cout << "ID: " << _pacientes[i].get_id() << " NOME: " << _pacientes[i].get_nome() << " IDADE: " << _pacientes[i].get_idade() << " SEXO: " << _pacientes[i].get_sexo() << std::endl;
+}
+
+void Hospital::atualizarSensores()
+{
+    for (int i = 0; i < _qtdPacientes; i++)
+    {
+        Paciente *p = &_pacientes[i]; // paciente atual
+
+        if (p->get_sensorPressao())
+            simular(p, p->get_sensorPressao());
+
+        if (p->get_sensorTemperatura())
+            simular(p, p->get_sensorTemperatura());
+
+        if (p->get_sensorOxigenio())
+            simular(p, p->get_sensorOxigenio());
+
+        if (p->get_sensorBatimento())
+            simular(p, p->get_sensorBatimento());
+
+        if (p->get_sensorRespiratorio())
+            simular(p, p->get_sensorRespiratorio());
+    }
 }

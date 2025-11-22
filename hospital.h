@@ -2,6 +2,7 @@
 #define HOSPITAL_H
 #include <iostream>
 #include "paciente.h"
+#include "simulador.h"
 
 class Hospital
 {
@@ -21,6 +22,7 @@ public:
     int get_qtdPacientes();
     Paciente **get_pacientes();
     void listarPacientes();
+    void atualizarSensores();
 };
 
 #endif

@@ -7,9 +7,18 @@ Paciente::Paciente(int id, std::string nome, int idade, std::string sexo)
     : _id(id), _nome(nome), _idade(idade), _sexo(sexo)
 {
     _sensorBatimento = new SensorBatimento;
+    _sensorOxigenio = new SensorOxigenio;
+    _sensorPressao = new SensorPressao;
+    _sensorRespiratorio = new SensorRespiratorio;
+    _sensorTemperatura = new SensorTemperatura;
 }
 Paciente::~Paciente()
 {
+    delete _sensorBatimento;
+    delete _sensorOxigenio;
+    delete _sensorPressao;
+    delete _sensorRespiratorio;
+    delete _sensorTemperatura;
 }
 int Paciente::get_id()
 {
