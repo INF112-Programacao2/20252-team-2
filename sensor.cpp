@@ -2,7 +2,7 @@
 #include <iostream>
 
 Sensor::Sensor(std::string tipo, double valor, std::string unidade, double min, double max)
-    : _tipo(tipo), _valor(valor), _unidade(unidade), _min(min), _max(max) {}
+    : _tipo(tipo), _valor(valor), _unidade(unidade), _min(min), _max(max), _dono(nullptr) {}
 
 Sensor::~Sensor(){
 }
@@ -40,6 +40,10 @@ void Sensor::set_tipo(std::string newTipo){
     _tipo = newTipo;
 }
 
+void Sensor::set_dono(Paciente *novodono){
+    _dono = novodono;
+}
+
     //Metodos
 
 
@@ -69,9 +73,8 @@ double Sensor::previsao(){ // Retorna uma media baseada nos cinco ultimos valore
     return soma / 5;
 }
 
-bool Sensor::alerta() const
-{
-    return false;
+bool Sensor::alerta() const{
+    return _valor < _min || _valor > _max;
 }
 void Sensor::exibirInfo() const
 {

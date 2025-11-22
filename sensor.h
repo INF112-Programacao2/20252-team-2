@@ -3,6 +3,8 @@
 #include <iostream>
 #include <vector>
 
+class Paciente;
+
 class Sensor
 {
 protected:
@@ -15,6 +17,7 @@ protected:
     double _valor;
     std::vector<double> _historico;
 
+    Paciente *_dono;
 public:
     Sensor(std::string tipo, double valor, std::string unidade, double min, double max);
     ~Sensor();
@@ -27,6 +30,7 @@ public:
 
     void set_tipo(std::string newTipo);
     void set_valor(double novoValor);
+    void set_dono(Paciente *novodono);
 
     double previsao();
 
