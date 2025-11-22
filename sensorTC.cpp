@@ -1,7 +1,7 @@
 #include "sensorTC.h"
 #include <iostream>
 
-SensorTemperatura::SensorTemperatura() : Sensor("Fc", 36.5, "C", 35, 38)
+SensorTemperatura::SensorTemperatura() : Sensor("Temperatura Corporal", 36.5, "C", 35, 38)
 {
 }
 

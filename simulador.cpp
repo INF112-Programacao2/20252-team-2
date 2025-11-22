@@ -21,5 +21,5 @@ void simular(Paciente *p, Sensor *sensor)
                   << sensor->get_valor() << sensor->get_unidade() << std::endl;
     }
 
-    std::cout << "Teste: " << sensor->get_valor() << std::endl;
+    std::cout << sensor->get_tipo() << ": " << sensor->get_valor() << " " << sensor->get_unidade() << std::endl;
 }

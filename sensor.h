@@ -17,6 +17,7 @@ public:
     double get_valor();
     double get_min();
     double get_max();
+    std::string get_tipo();
     std::string get_unidade();
     void set_tipo();
     void set_valor(double novoValor);

@@ -1,7 +1,7 @@
 #include "sensorPA.h"
 #include <iostream>
 
-SensorPressao::SensorPressao() : Sensor("Fc", 85, "mmHg", 60, 110)
+SensorPressao::SensorPressao() : Sensor("Pressao Arterial", 85, "mmHg", 60, 110)
 {
 }
 

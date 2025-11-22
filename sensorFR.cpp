@@ -1,7 +1,7 @@
 #include "sensorFR.h"
 #include <iostream>
 
-SensorRespiratorio::SensorRespiratorio() : Sensor("Fc", 18, "rpm", 12, 24)
+SensorRespiratorio::SensorRespiratorio() : Sensor("Frequencia Respiratoria", 18, "rpm", 12, 24)
 {
 }
 

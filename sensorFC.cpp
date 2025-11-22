@@ -1,7 +1,7 @@
 #include "sensorFC.h"
 #include <iostream>
 
-SensorBatimento::SensorBatimento() : Sensor("Fc", 80, "bpm", 60, 120)
+SensorBatimento::SensorBatimento() : Sensor("Frequencia Cardiaca", 80, "bpm", 60, 120)
 {
 }
 

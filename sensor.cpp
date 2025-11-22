@@ -28,6 +28,11 @@ std::string Sensor::get_unidade()
     return _unidade;
 }
 
+std::string Sensor::get_tipo()
+{
+    return _tipo;
+}
+
 void Sensor::set_valor(double novoValor)
 {
     _valor = novoValor;

@@ -1,7 +1,7 @@
 #include "sensorSO.h"
 #include <iostream>
 
-SensorOxigenio::SensorOxigenio() : Sensor("Fc", 100, "sPo2", 95, 100)
+SensorOxigenio::SensorOxigenio() : Sensor("Saturacao de Oxigenio", 100, "sPo2", 95, 100)
 {
 }
 

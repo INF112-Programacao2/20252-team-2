@@ -47,6 +47,7 @@
         "ctime": "cpp",
         "fstream": "cpp",
         "sstream": "cpp",
-        "xstring": "cpp"
+        "xstring": "cpp",
+        "cinttypes": "cpp"
     }
 }
