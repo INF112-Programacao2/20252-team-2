@@ -3,44 +3,32 @@
 #include <ctime>
 #include <cctype>
 #include <string>
+#include <vector>
 #include "hospital.h"
 #include "paciente.h"
-#include "sensor.h"
-#include "sensorSO.h"
-#include "sensorFC.h"
-#include "sensorFR.h"
-#include "sensorTC.h"
-#include "sensorPA.h"
-#include "simulador.h"
+#include<stdexcept>
 using namespace std;
 
+// Variaveis globais auxiliares
 int idPaciente = 0;
 string nomepaciente;
 int idadePaciente;
 string sexoPaciente;
-int idBusca;
-
-#include <iostream>
-#include <string>
-using namespace std;
 
 int lerID()
 {
     string entrada;
     int id;
-
     cout << "Digite o ID do paciente: ";
     cin >> entrada;
-
     try
     {
-        id = stoi(entrada); // tenta converter
+        id = stoi(entrada);
     }
     catch (invalid_argument &)
     {
         throw runtime_error("Erro: o ID deve ser um numero.");
     }
-
     return id;
 }
 
@@ -50,36 +38,45 @@ int main()
 
     string nomeHospital;
     int capacidadeHospital;
-    int vezes;
-    int cont = 0;
+    Hospital *h = nullptr;
 
-    cout << "Crie um hospital(insira nome e capacidade): ";
-    cin >> nomeHospital >> capacidadeHospital;
-    Hospital *h = new Hospital(nomeHospital, capacidadeHospital);
+    cout << "--- SISTEMA HOSPITALAR ---" << endl;
+
+    // 3. Se não carregou nenhum, cria novo
+    if (h == nullptr)
+    {
+        cout << "Crie um hospital (insira nome e capacidade): ";
+        cin >> nomeHospital >> capacidadeHospital;
+        h = new Hospital(nomeHospital, capacidadeHospital);
+    }
 
     time_t b = time(NULL);
 
     while (true)
     {
-
         int escolha;
+        cout << "\nHospital: " << h->get_nome() << endl;
         cout << "Escolha uma opcao:\n";
         cout << "Cadastrar novo paciente(1)\n";
         cout << "Deletar Paciente(2)\n";
         cout << "Buscar Paciente(3)\n";
         cout << "Rodar simulacao(4)\n";
+        cout << "Sair(0)\n";
         cin >> escolha;
-
-        idPaciente++;
 
         switch (escolha)
         {
         case 1:
         {
+            idPaciente++; // Incrementa ID
             cout << "Digite: Nome, Idade, M/F: ";
             cin >> nomepaciente >> idadePaciente >> sexoPaciente;
             Paciente *p = new Paciente(idPaciente, nomepaciente, idadePaciente, sexoPaciente);
+
+            // Adiciona na memória
             h->cadastrarPaciente(p);
+
+            delete p; // O hospital faz cópia, podemos deletar esse
             break;
         }
         case 2:
@@ -92,34 +89,14 @@ int main()
 
                 if (p != nullptr)
                 {
-                    cout << "Paciente encontrado: " << p->get_nome() << " | Idade: " << p->get_idade() << " | Sexo: " << p->get_sexo() << endl;
-
-                    while (true)
+                    cout << "Paciente encontrado: " << p->get_nome() << endl;
+                    char x;
+                    cout << "Deseja remover esse paciente? (S/N): ";
+                    cin >> x;
+                    if (x == 'S' || x == 's')
                     {
-                        try
-                        {
-                            char x;
-                            cout << "Deseja remover esse paciente? (S/N)" << endl;
-                            cin >> x;
-
-                            if (x == 'S')
-                            {
-                                h->removerPaciente(idBusca);
-                                break;
-                            }
-                            else if (x == 'N')
-                            {
-                                break;
-                            }
-                            else
-                            {
-                                throw invalid_argument("Entrada invalida! Digite apenas S ou N.");
-                            }
-                        }
-                        catch (invalid_argument &e)
-                        {
-                            cout << e.what() << endl;
-                        }
+                        // Remove da memória
+                        h->removerPaciente(idBusca);
                     }
                 }
                 else
@@ -131,17 +108,14 @@ int main()
             {
                 cout << e.what() << endl;
             }
-
             break;
         }
-
         case 3:
         {
             try
             {
                 int idBusca = lerID();
                 Paciente *p = h->buscarPaciente(idBusca);
-
                 if (p != nullptr)
                 {
                     cout << "Paciente encontrado: " << p->get_nome() << " | Idade: " << p->get_idade() << " | Sexo: " << p->get_sexo() << endl;
@@ -157,25 +131,42 @@ int main()
             }
             break;
         }
-        break;
         case 4:
         {
-            cout << "Insira Numero de simulacoes desejadas: ";
-            cin >> vezes;
-            cont = 0;
-            while (cont < vezes)
+            try
             {
-                time_t a = time(NULL);
-                if (a - b >= 0.1)
+                int vezes;
+                cout << "Insira Numero de simulacoes: ";
+                cin >> vezes;
+
+                if (!cin)
+                    throw runtime_error("Numero invalido!");
+
+                int cont = 0;
+                while (cont < vezes)
                 {
-                    b = a;
-                    h->atualizarSensores();
-                    cont++;
+                    time_t a = time(NULL);
+                    if (difftime(a, b) >= 0.1)
+                    {
+                        b = a;
+                        h->atualizarSensores();
+                        cont++;
+                    }
+                    
+                    break;
                 }
+            }
+            catch (exception &e)
+            {
+                cout << "Erro: " << e.what() << endl;
             }
             break;
         }
+        case 0:
+            delete h;
+            return 0;
         default:
+            cout << "Opcao invalida" << endl;
             break;
         }
     }
