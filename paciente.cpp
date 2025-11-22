@@ -1,16 +1,30 @@
 #include "paciente.h"
 #include <iostream>
 
-Paciente::Paciente() {}
+Paciente::Paciente()
+    : _sensorBatimento(nullptr),
+      _sensorOxigenio(nullptr),
+      _sensorPressao(nullptr),
+      _sensorRespiratorio(nullptr),
+      _sensorTemperatura(nullptr){ }
 
 Paciente::Paciente(int id, std::string nome, int idade, std::string sexo)
     : _id(id), _nome(nome), _idade(idade), _sexo(sexo)
 {
     _sensorBatimento = new SensorBatimento;
+        _sensorBatimento->set_dono(this);
+
     _sensorOxigenio = new SensorOxigenio;
+        _sensorOxigenio->set_dono(this);
+
     _sensorPressao = new SensorPressao;
+        _sensorPressao->set_dono(this);
+
     _sensorRespiratorio = new SensorRespiratorio;
+        _sensorRespiratorio->set_dono(this);
+        
     _sensorTemperatura = new SensorTemperatura;
+        _sensorTemperatura->set_dono(this);
 }
 Paciente::~Paciente()
 {
