@@ -5,27 +5,36 @@
 #include <mutex>
 #include <thread>
 #include <atomic>
+#include <vector>
+#include <string>
 
-// Forward Declaration: Evita erro de include circular
+// Forward Declaration
 class Hospital;
 
-// Mutex global para sincronização
 extern std::mutex mtxHospital;
-void simular(Paciente *p, Sensor *sensor);
+
+std::string simular(Paciente *p, Sensor *sensor);
 
 class GerenciadorSimulacao
 {
 private:
     std::atomic<bool> _ativo;
     std::thread _threadSimulacao;
+
+    std::vector<std::string> _bufferAlertas;
+    std::mutex _mtxAlertas;
+
     void loop(Hospital *h);
 
 public:
     GerenciadorSimulacao();
     ~GerenciadorSimulacao();
+
     void iniciar(Hospital *h);
     void parar();
     bool estaRodando() const;
+
+    std::vector<std::string> pegarAlertas();
 };
 
 #endif

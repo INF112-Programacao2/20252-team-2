@@ -4,11 +4,11 @@
 #include <cctype>
 #include <string>
 #include <vector>
-#include <mutex> // Necessário para proteger a leitura no Case 3
+#include <mutex> 
 #include "hospital.h"
 #include "paciente.h"
 #include "database.h"
-#include "simulador.h" // Inclui o gerenciador de threads
+#include "simulador.h" 
 
 using namespace std;
 
@@ -123,6 +123,23 @@ int main()
 
     while (true)
     {
+        // --- NOVO BLOCO: RECUPERA E IMPRIME ALERTAS ---
+        if (sim.estaRodando())
+        {
+            vector<string> alertas = sim.pegarAlertas(); // Pega da caixa de correio
+            if (!alertas.empty())
+            {
+                cout << "\n\033[1;31m========== NOVOS ALERTAS DETECTADOS ==========\033[0m" << endl;
+                for (const string &msg : alertas)
+                {
+                    cout << " -> " << msg << endl;
+                }
+                cout << "==============================================\n"
+                     << endl;
+            }
+        }
+        // ----------------------------------------------
+
         int escolha;
         cout << "\nHospital: " << h->get_nome() << endl;
         cout << "Escolha uma opcao:\n";
@@ -277,8 +294,10 @@ int main()
                 h->listarPacientes();
                 cout << "---------------------------------" << endl;
                 int idEmergencia;
-                cout << "digite o ID para atender: ";
-                idEmergencia = lerID();
+                cout << "digite o ID para atender: "; 
+              
+                cin >> idEmergencia;
+
                 std::lock_guard<std::mutex> lock(mtxHospital);
                 if (h->tratarPaciente(idEmergencia))
                     cout << "Paciente tratado com sucesso!\n";
