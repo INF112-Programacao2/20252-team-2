@@ -4,9 +4,12 @@
 #include <cctype>
 #include <string>
 #include <vector>
+#include <mutex> // Necessário para proteger a leitura no Case 3
 #include "hospital.h"
 #include "paciente.h"
 #include "database.h"
+#include "simulador.h" // Inclui o gerenciador de threads
+
 using namespace std;
 
 // Variaveis globais auxiliares
@@ -40,7 +43,9 @@ int main()
     GerenciadorBD db;
     db.inicializar();
     idPaciente = db.getUltimoIdPaciente();
-    // --------------------------------
+
+    // Inicializar Gerenciador de Threads (Simulação em 2º Plano)
+    GerenciadorSimulacao sim;
 
     string nomeHospital;
     int capacidadeHospital;
@@ -48,8 +53,9 @@ int main()
 
     cout << "--- SISTEMA HOSPITALAR ---" << endl;
 
+    // --- BLOCO DE LOGIN/CARREGAMENTO ---
     while (h == nullptr)
-    { // Loop até o usuário escolher ou criar um hospital
+    {
         vector<pair<string, int>> hospitaisSalvos = db.listarHospitais();
 
         if (!hospitaisSalvos.empty())
@@ -69,9 +75,7 @@ int main()
             cin >> opcao;
 
             if (opcao == 0)
-            {
                 break;
-            }
             else if (opcao == -1)
             {
                 cout << "Digite o numero do hospital para deletar: ";
@@ -80,116 +84,112 @@ int main()
                 if (del > 0 && del <= (int)hospitaisSalvos.size())
                 {
                     string nomeParaDeletar = hospitaisSalvos[del - 1].first;
-
-                    cout << "Tem certeza que deseja apagar " << nomeParaDeletar << " e todos os seus pacientes? (S/N): ";
+                    cout << "Tem certeza? (S/N): ";
                     char confirm;
                     cin >> confirm;
                     if (confirm == 'S' || confirm == 's')
-                    {
                         db.removerHospital(nomeParaDeletar);
-                    }
                 }
                 else
-                {
                     cout << "Opcao invalida!" << endl;
-                }
-                // O loop roda de novo para atualizar a lista
             }
             else if (opcao > 0 && opcao <= (int)hospitaisSalvos.size())
             {
-                // Carregar Existente
                 nomeHospital = hospitaisSalvos[opcao - 1].first;
                 capacidadeHospital = hospitaisSalvos[opcao - 1].second;
                 h = new Hospital(nomeHospital, capacidadeHospital);
                 db.carregarPacientesParaHospital(h);
 
-                // Atualiza ID para não dar conflito
                 int ultimoId = db.getUltimoIdPaciente();
                 if (ultimoId > idPaciente)
                     idPaciente = ultimoId;
-
                 cout << "Hospital carregado com sucesso!" << endl;
             }
             else
-            {
                 cout << "Opcao invalida." << endl;
-            }
         }
         else
-        {
-            break; // Se não tem hospitais, sai para criar um
-        }
+            break;
     }
 
-    // Se não carregou nenhum, cria novo
     if (h == nullptr)
     {
         cout << "Crie um hospital (insira nome e capacidade): ";
         cin >> nomeHospital >> capacidadeHospital;
         h = new Hospital(nomeHospital, capacidadeHospital);
-        // Salva o novo hospital no banco
         db.salvarHospital(nomeHospital, capacidadeHospital);
     }
-
-    time_t b = time(NULL);
+    // -----------------------------------
 
     while (true)
     {
-        string nomeHospital;
         int escolha;
         cout << "\nHospital: " << h->get_nome() << endl;
         cout << "Escolha uma opcao:\n";
-        cout << "Cadastrar novo paciente(1)\n";
-        cout << "Deletar Paciente(2)\n";
-        cout << "Buscar Paciente(3)\n";
-        cout << "Rodar simulacao(4)\n";
-        cout << "Sair(0)\n";
+        cout << "1. Cadastrar novo paciente\n";
+        cout << "2. Deletar Paciente\n";
+        cout << "3. Buscar Paciente (Ver Sinais Vitais)\n";
+
+        // Mostra se está rodando ou não
+        if (sim.estaRodando())
+            cout << "4. [PARAR] Simulacao (Rodando em background...)\n";
+        else
+            cout << "4. [INICIAR] Simulacao (Threads)\n";
+
+        cout << "5. Atender Emergencia\n";
+        cout << "0. Sair\n";
+        cout << "Escolha: ";
         cin >> escolha;
 
         switch (escolha)
         {
-        case 1:
+        case 1: // CADASTRAR
         {
-            idPaciente++; // Incrementa ID
+            idPaciente++;
             cout << "Digite: Nome, Idade, M/F: ";
             cin >> nomepaciente >> idadePaciente >> sexoPaciente;
-            Paciente *p = new Paciente(idPaciente, nomepaciente, idadePaciente, sexoPaciente);
 
-            // Adiciona na memória
-            h->cadastrarPaciente(p);
+            {
+                std::lock_guard<std::mutex> lock(mtxHospital);
+                Paciente *p = new Paciente(idPaciente, nomepaciente, idadePaciente, sexoPaciente);
+                h->cadastrarPaciente(p);
+                db.salvarPaciente(idPaciente, nomepaciente, idadePaciente, sexoPaciente, h->get_nome());
+            }
 
-            // Adiciona no Banco de Dados
-            db.salvarPaciente(idPaciente, nomepaciente, idadePaciente, sexoPaciente, h->get_nome());
+            // --- FEEDBACK PARA O USUÁRIO ---
+            cout << "\n****************************************" << endl;
+            cout << " SUCEESSO! Paciente cadastrado." << endl;
+            cout << " Nome: " << nomepaciente << endl;
+            cout << " ID DO PACIENTE: " << idPaciente << "  <-- (Use este numero para buscar)" << endl;
+            cout << "****************************************\n"
+                 << endl;
 
-            delete p; // O hospital faz cópia, podemos deletar esse
             break;
         }
-        case 2:
+        case 2: // DELETAR
         {
             h->listarPacientes();
             try
             {
                 int idBusca = lerID();
-                Paciente *p = h->buscarPaciente(idBusca);
+                // Bloqueia para garantir que a simulação não acesse enquanto deletamos
+                std::lock_guard<std::mutex> lock(mtxHospital);
 
+                Paciente *p = h->buscarPaciente(idBusca);
                 if (p != nullptr)
                 {
                     cout << "Paciente encontrado: " << p->get_nome() << endl;
+                    cout << "Confirmar remocao? (S/N): ";
                     char x;
-                    cout << "Deseja remover esse paciente? (S/N): ";
                     cin >> x;
                     if (x == 'S' || x == 's')
                     {
-                        // Remove da memória
                         h->removerPaciente(idBusca);
-                        // Remove do Banco de Dados
                         db.removerPaciente(idBusca);
                     }
                 }
                 else
-                {
                     cout << "Paciente nao encontrado.\n";
-                }
             }
             catch (runtime_error &e)
             {
@@ -197,22 +197,59 @@ int main()
             }
             break;
         }
-        case 3:
+        case 3: // BUSCAR E MOSTRAR SENSORES
         {
             try
             {
+                cout << "\n--- Lista Rapida de Pacientes ---" << endl;
                 h->listarPacientes();
+                cout << "---------------------------------" << endl;
+                // h->listarPacientes(); // Opcional, pode poluir se tiver muitos
                 int idBusca = lerID();
+
+                // Trava o mutex para ler os dados sem que a thread mude eles no meio da leitura
+                std::lock_guard<std::mutex> lock(mtxHospital);
+
                 Paciente *p = h->buscarPaciente(idBusca);
                 if (p != nullptr)
                 {
-                    cout << "Paciente encontrado: " << p->get_nome() << " | Idade: " << p->get_idade() << " | Sexo: " << p->get_sexo() << endl;
-                    h->atualizarSensores();
+                    cout << "\n--- FICHA DO PACIENTE ---" << endl;
+                    cout << "ID:    " << p->get_id() << endl;
+                    cout << "Nome:  " << p->get_nome() << endl;
+                    cout << "Idade: " << p->get_idade() << endl;
+                    cout << "Sexo:  " << p->get_sexo() << endl;
+
+                    cout << "\n--- MONITORAMENTO EM TEMPO REAL ---" << endl;
+                    // Chama o lerValor() de cada sensor existente
+                    if (p->get_sensorBatimento())
+                    {
+                        cout << "- ";
+                        p->get_sensorBatimento()->lerValor();
+                    }
+                    if (p->get_sensorOxigenio())
+                    {
+                        cout << "- ";
+                        p->get_sensorOxigenio()->lerValor();
+                    }
+                    if (p->get_sensorPressao())
+                    {
+                        cout << "- ";
+                        p->get_sensorPressao()->lerValor();
+                    }
+                    if (p->get_sensorTemperatura())
+                    {
+                        cout << "- ";
+                        p->get_sensorTemperatura()->lerValor();
+                    }
+                    if (p->get_sensorRespiratorio())
+                    {
+                        cout << "- ";
+                        p->get_sensorRespiratorio()->lerValor();
+                    }
+                    cout << "-----------------------------------\n";
                 }
                 else
-                {
                     cout << "Paciente nao encontrado.\n";
-                }
             }
             catch (runtime_error &e)
             {
@@ -220,27 +257,42 @@ int main()
             }
             break;
         }
-        case 4:
+        case 4: // LIGAR/DESLIGAR THREADS
         {
-
-            int vezes;
-            int cont = 0;
-            cout << "Insira Numero de simulacoes desejadas: ";
-            cin >> vezes;
-            while (cont < vezes)
+            if (sim.estaRodando())
             {
-                time_t a = time(NULL);
-                if (a - b >= 1)
-                {
-                    b = a;
-                    h->atualizarSensores();
-                    cont++;
-                }
-
-                break;
+                sim.parar();
             }
+            else
+            {
+                sim.iniciar(h);
+            }
+            break;
+        }
+        case 5: // ATENDER EMERGENCIA
+        {
+            try
+            {
+                cout << "\n--- Lista Rapida de Pacientes ---" << endl;
+                h->listarPacientes();
+                cout << "---------------------------------" << endl;
+                int idEmergencia;
+                cout << "digite o ID para atender: ";
+                idEmergencia = lerID();
+                std::lock_guard<std::mutex> lock(mtxHospital);
+                if (h->tratarPaciente(idEmergencia))
+                    cout << "Paciente tratado com sucesso!\n";
+                else
+                    cout << "Erro ao tratar.\n";
+            }
+            catch (runtime_error &e)
+            {
+                cout << e.what() << endl;
+            }
+            break;
         }
         case 0:
+            sim.parar(); // Para a thread antes de sair
             delete h;
             return 0;
         default:

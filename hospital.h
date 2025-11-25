@@ -2,7 +2,7 @@
 #define HOSPITAL_H
 #include <iostream>
 #include "paciente.h"
-#include "simulador.h"
+// #include "simulador.h"
 
 class Hospital
 {
@@ -10,7 +10,7 @@ private:
     int _capacidade;
     int _qtdPacientes;
     std::string _nome;
-    Paciente *_pacientes;
+    Paciente **_pacientes;
 
 public:
     Hospital(std::string nome, int capacidade);
@@ -23,6 +23,7 @@ public:
     Paciente **get_pacientes();
     void listarPacientes();
     void atualizarSensores();
+    bool tratarPaciente(int Id);
 };
 
 #endif

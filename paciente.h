@@ -37,6 +37,7 @@ public:
     SensorOxigenio *get_sensorOxigenio();
     SensorBatimento *get_sensorBatimento();
     SensorRespiratorio *get_sensorRespiratorio();
+    void estabilizar();
 };
 
 #endif
