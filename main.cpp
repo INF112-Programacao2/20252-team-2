@@ -322,21 +322,52 @@ int main()
         {
             cout << "\n"
                  << CYAN << "--- REMOVER PACIENTE ---" << RESET << endl;
-            h->listarPacientes();
+
+            {
+                std::lock_guard<std::mutex> lock(mtxHospital);
+                h->listarPacientes();
+            }
             linhaDivisoria();
+
             try
             {
                 int idBusca = lerID();
-                std::lock_guard<std::mutex> lock(mtxHospital);
-                Paciente *p = h->buscarPaciente(idBusca);
+                string nomeParaConfirmar;
+                bool encontrado = false;
 
-                if (p != nullptr)
+                // --- FASE 1: BUSCA ---
                 {
-                    cout << YELLOW << "Remover paciente " << p->get_nome() << "? (S/N): " << RESET;
-                    char x;
-                    cin >> x;
-                    if (x == 'S' || x == 's')
+                    std::lock_guard<std::mutex> lock(mtxHospital);
+                    Paciente *p = h->buscarPaciente(idBusca);
+                    if (p != nullptr)
                     {
+                        nomeParaConfirmar = p->get_nome();
+                        encontrado = true;
+                    }
+                }
+
+                if (encontrado)
+                {
+                    char x;
+
+                    while (true)
+                    {
+                        cout << YELLOW << "Remover paciente " << nomeParaConfirmar << "? (S/N): " << RESET;
+                        cin >> x;
+                        x = toupper(x);
+
+                        if (x == 'S' || x == 'N')
+                            break;
+
+                        cout << RED << ">> Opcao invalida! Digite S ou N." << RESET << endl;
+                        cin.ignore(10000, '\n');
+                    }
+
+                    if (x == 'S')
+                    {
+
+                        std::lock_guard<std::mutex> lock(mtxHospital);
+
                         h->removerPaciente(idBusca);
                         db.removerPaciente(idBusca);
                     }
@@ -347,13 +378,16 @@ int main()
                 }
                 else
                 {
-                    cout << RED << "Paciente nao encontrado." << RESET << endl;
+
+                    throw runtime_error("Paciente nao encontrado com este ID.");
                 }
             }
             catch (runtime_error &e)
             {
+
                 cout << RED << "Erro: " << e.what() << RESET << endl;
             }
+
             pausa();
             break;
         }
