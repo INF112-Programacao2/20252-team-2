@@ -5,8 +5,9 @@
 #include <stdexcept>
 
 Hospital::Hospital(std::string nome, int capacidade)
-    : _nome(nome), _capacidade(capacidade), _qtdPacientes(0)
+    : _capacidade(capacidade), _nome(nome), _qtdPacientes(0) // <--- Troquei a ordem
 {
+    // ... resto do código igual ...
     _pacientes = new Paciente *[capacidade];
     for (int i = 0; i < capacidade; i++)
     {
