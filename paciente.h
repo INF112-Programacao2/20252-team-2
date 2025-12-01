@@ -17,7 +17,6 @@ private:
     std::string _nome;
     int _idade;
     std::string _sexo;
-    std::string _diagnostico;
     SensorPressao *_sensorPressao;
     SensorTemperatura *_sensorTemperatura;
     SensorOxigenio *_sensorOxigenio;
