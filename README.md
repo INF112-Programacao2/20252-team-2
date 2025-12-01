@@ -5,34 +5,20 @@
 
 ## 💡 Sobre o Projeto
 
-O **Sistema de Monitoramento Hospitalar** é uma aplicação desenvolvida em C++ que permite o cadastro e a gestão eficiente de pacientes. O sistema associa a cada paciente um conjunto de sensores virtuais para leitura de dados vitais, como:
-* Batimento Cardíaco
-* Temperatura Corporal
-* Nível de Oxigênio
+O **Sistema de Monitoramento de Sinais Vitais Hospitalares** é uma solução de software de alto desempenho desenvolvida em **C++**, projetada para emular a infraestrutura digital de uma Unidade de Terapia Intensiva (UTI).
 
-O diferencial do projeto é a **Simulação Dinâmica**: o sistema gera flutuações nesses sinais utilizando cálculos que incluem ruído aleatório e uma tendência de retorno à homeostase, emitindo alertas imediatos caso os valores ultrapassem os limites de segurança pré-definidos.
+Este projeto transcende um simples cadastro de pacientes. Ele atua como um **Simulador de Biofeedback em Tempo Real**, onde cada paciente cadastrado torna-se uma entidade ativa no sistema, equipada com sensores virtuais que operam de forma autônoma e concorrente à interface do usuário.
 
----
+O sistema foi arquitetado para resolver um problema clássico de sistemas críticos: **como processar dados fisiológicos de múltiplos pacientes simultaneamente, garantindo integridade e persistência, sem travar a operação administrativa.**
 
-## 📌 Funcionalidades Principais
+### 🧠 O "Motor" de Simulação Fisiológica
+O coração deste projeto é seu algoritmo de geração de dados. Diferente de sistemas básicos que utilizam apenas números aleatórios, nossa *engine* simula o comportamento biológico real através de conceitos de **Homeostase e Variabilidade Estocástica**:
 
-| Funcionalidade | Descrição |
-| :--- | :--- |
-| **Gestão de Pacientes** 🧑‍⚕️ | Cadastro, busca e remoção de pacientes no banco de dados do hospital. |
-| **Monitoramento por Sensores** 📊 | Cada paciente possui sensores virtuais individuais para leituras específicas. |
-| **Simulação Dinâmica** 📈 | Atualização periódica (em tempo real) dos valores, simulando a fisiologia real. |
-| **Alerta Crítico** 🚨 | Notificação automática quando um valor excede a faixa de segurança (`_min` a `_max`). |
-| **Estrutura Modular** 🧩 | Uso de **Herança** e **Polimorfismo** (Classe base `Sensor`) para facilitar a escalabilidade. |
+* **Tendência ao Equilíbrio:** Os sensores possuem um "Set Point" (ponto ideal fisiológico). Se a temperatura de um paciente sobe, o algoritmo calcula vetores de tendência para trazê-la de volta ao normal, simulando a resposta imunológica ou medicamentosa.
+* **Ruído Natural:** Introduzimos flutuações e ruídos randômicos nos dados para imitar a imprecisão natural de sensores reais e a variabilidade imprevisível do corpo humano.
+* **Eventos Críticos:** O sistema permite que os valores rompam a inércia e "escapem" do controle, simulando quadros de risco (como febre alta ou hipóxia), o que dispara imediatamente a lógica de alertas.
 
----
-
-## 🛠️ Tecnologias Utilizadas
-
-* **Linguagem:** C++ (Standard 11 ou superior recomendado)
-* **Banco de Dados:** SQLite3
-* **Conceitos:** Programação Orientada a Objetos (POO), Multithreading.
-
----
+### 🏗️ Arquitetura e Engenharia de Software
 
 ### 1. SQL e SQLite (A Memória Permanente)
 O que é: SQL (Structured Query Language) é a linguagem usada para conversar com bancos de dados. O SQLite é o "motor" que usamos: ele é um banco de dados leve que guarda tudo em um único arquivo (dados_hospital.db) dentro da pasta do projeto, sem precisar de servidor.
@@ -91,6 +77,40 @@ A Solução: Usamos std::atomic<bool> _ativo.
 O Main diz: _ativo = false.
 
 A Thread da Simulação lê while (_ativo) e percebe instantaneamente que mudou, encerrando o loop com segurança.
+
+---
+
+### 🔍 Visão Geral dos Sensores Virtuais
+
+O sistema utiliza **Polimorfismo** para instanciar diferentes tipos de sensores que herdam de uma classe base, mas possuem comportamentos biofísicos distintos:
+
+| Sensor Virtual | Unidade | Comportamento Simulado | Faixa Segura (Ref.) |
+| :--- | :---: | :--- | :---: |
+| **Oxímetro** 🫁 | `% SpO2` | Simula a saturação de oxigênio no sangue. Quedas bruscas acionam alerta de Hipóxia. | 95% - 100% |
+| **Batimento Cardíaco** ❤️ | `BPM` | Monitora a frequência cardíaca. Variações rápidas indicam Taquicardia ou Bradicardia. | 60 - 100 BPM |
+| **Termômetro** 🌡️ | `°C` | Acompanha a temperatura corporal com **inércia térmica** (mudanças lentas e graduais). | 36.0°C - 37.5°C |
+
+---
+
+## 📌 Funcionalidades Principais
+
+| Funcionalidade | Descrição |
+| :--- | :--- |
+| **Gestão de Pacientes** 🧑‍⚕️ | Cadastro, busca e remoção de pacientes no banco de dados do hospital. |
+| **Monitoramento por Sensores** 📊 | Cada paciente possui sensores virtuais individuais para leituras específicas. |
+| **Simulação Dinâmica** 📈 | Atualização periódica (em tempo real) dos valores, simulando a fisiologia real. |
+| **Alerta Crítico** 🚨 | Notificação automática quando um valor excede a faixa de segurança (`_min` a `_max`). |
+| **Estrutura Modular** 🧩 | Uso de **Herança** e **Polimorfismo** (Classe base `Sensor`) para facilitar a escalabilidade. |
+
+---
+
+## 🛠️ Tecnologias Utilizadas
+
+* **Linguagem:** C++ (Standard 11 ou superior recomendado)
+* **Banco de Dados:** SQLite3
+* **Conceitos:** Programação Orientada a Objetos (POO), Multithreading.
+
+---
 
 ## 💻 Como Executar
 
