@@ -221,16 +221,15 @@ int main()
         string tituloMenu = "HOSPITAL: " + h->get_nome();
         cabecalho(tituloMenu);
 
-        // --- EXIBIÇÃO DE ALERTAS ---
         if (sim.estaRodando())
         {
             vector<string> alertas = sim.pegarAlertas();
             if (!alertas.empty())
             {
-                cout << RED << BOLD << "\n[ ! ] NOVOS ALERTAS DETECTADOS:" << RESET << endl;
+
                 for (const string &msg : alertas)
                 {
-                    cout << RED << " -> " << msg << RESET << endl;
+                    cout << msg << endl;
                 }
                 linhaDivisoria();
             }
@@ -278,7 +277,8 @@ int main()
             idPaciente++;
 
             cout << "Nome: ";
-            cin >> nomepaciente;
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            getline(cin, nomepaciente);
 
             cout << "Idade: ";
             while (!(cin >> idadePaciente) || idadePaciente < 0)
@@ -339,7 +339,6 @@ int main()
                     {
                         h->removerPaciente(idBusca);
                         db.removerPaciente(idBusca);
-                       
                     }
                     else
                     {
@@ -390,7 +389,7 @@ int main()
                         if (s)
                         {
                             cout << "  > " << label << ": ";
-                            s->lerValor(); 
+                            s->lerValor();
                         }
                     };
 

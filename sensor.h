@@ -13,7 +13,7 @@ protected:
 
 public:
     Sensor(std::string tipo, double valor, std::string unidade, double min, double max);
-    ~Sensor();
+    virtual ~Sensor();
     double get_valor();
     double get_min();
     double get_max();

@@ -1,7 +1,13 @@
 #include "paciente.h"
 #include <iostream>
 
-Paciente::Paciente() {}
+Paciente::Paciente() : _id(0), _nome(""), _idade(0), _sexo(""),
+                       _sensorPressao(nullptr), _sensorTemperatura(nullptr),
+                       _sensorOxigenio(nullptr), _sensorBatimento(nullptr),
+                       _sensorRespiratorio(nullptr)
+
+{
+}
 
 Paciente::Paciente(int id, std::string nome, int idade, std::string sexo)
     : _id(id), _nome(nome), _idade(idade), _sexo(sexo)

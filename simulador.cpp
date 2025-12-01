@@ -6,7 +6,8 @@
 
 std::mutex mtxHospital;
 
-// MUDANÇA: Agora retorna string. Se estiver tudo bem, retorna string vazia "".
+#include <sstream>
+
 std::string simular(Paciente *p, Sensor *sensor)
 {
     double var = (sensor->get_max() - sensor->get_min()) / 10;
@@ -19,27 +20,16 @@ std::string simular(Paciente *p, Sensor *sensor)
 
     if (sensor->alerta())
     {
-        std::cout << std::endl;
+        std::stringstream ss;
 
-        std::cout << "\033[31m"
-                  << "====================  A L E R T A  ====================\n"
-                  << "\033[0m";
+        ss << "\033[31m" << "(!) ALERTA CRITICO: " << "\033[0m"
+           << "Paciente " << p->get_nome() << " (ID: " << p->get_id() << ") - "
+           << sensor->get_tipo() << ": "
+           << "\033[1;31m" << sensor->get_valor() << " " << sensor->get_unidade() << "\033[0m";
 
-        std::cout << "\033[31m"
-                  << "+------------------------------------------------------+\n"
-                  << "|                     ALERTA CRITICO                   |\n"
-                  << "+------------------------------------------------------+\n"
-                  << "\033[0m";
-
-        std::cout << "  Paciente  : " << p->get_nome() << " Id:" << p->get_id() << "\n"
-                  << "  Parametro: " << sensor->get_unidade() << "\n"
-                  << "  Valor     : " << "\033[1;31m" << sensor->get_valor() << "\033[0m\n";
-
-        std::cout << "\033[31m"
-                  << "+======================================================+\n"
-                  << "\033[0m\n";
+        return ss.str();
     }
-    return ""; // Sem alerta
+    return "";
 }
 
 // --- Gerenciador ---
