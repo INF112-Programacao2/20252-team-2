@@ -126,10 +126,19 @@ void GerenciadorBD::carregarPacientesParaHospital(Hospital *h)
             std::string sexo = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 3));
 
             Paciente *p = new Paciente(id, nome, idade, sexo);
-            h->cadastrarPaciente(p);
 
-            // IMPORTANTE: NÃO FAZEMOS 'delete p' AQUI!
-            // O Hospital agora é o dono do ponteiro p.
+            try
+            {
+                h->cadastrarPaciente(p);
+            }
+            catch (std::runtime_error &e)
+            {
+
+                std::cout << "\n[AVISO] Banco de dados contem mais pacientes que a capacidade do hospital." << std::endl;
+                std::cout << "Paciente " << nome << " (ID: " << id << ") nao foi carregado." << std::endl;
+
+                delete p;
+            }
         }
     }
     sqlite3_finalize(stmt);

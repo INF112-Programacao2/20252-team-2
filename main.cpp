@@ -4,11 +4,11 @@
 #include <cctype>
 #include <string>
 #include <vector>
-#include <mutex> 
+#include <mutex>
 #include "hospital.h"
 #include "paciente.h"
 #include "database.h"
-#include "simulador.h" 
+#include "simulador.h"
 
 using namespace std;
 
@@ -22,17 +22,20 @@ int lerID()
 {
     string entrada;
     int id;
-    cout << "Digite o ID do paciente: ";
-    cin >> entrada;
-    try
+    while (true)
     {
-        id = stoi(entrada);
+        cout << "Digite o ID do paciente: ";
+        cin >> entrada;
+        try
+        {
+            id = stoi(entrada);
+            return id;
+        }
+        catch (invalid_argument &)
+        {
+            cout << "Erro: Digite apenas numeros!" << endl;
+        }
     }
-    catch (invalid_argument &)
-    {
-        throw runtime_error("Erro: o ID deve ser um numero.");
-    }
-    return id;
 }
 
 int main()
@@ -72,7 +75,16 @@ int main()
 
             int opcao;
             cout << "Escolha: ";
-            cin >> opcao;
+            string entradaOpcao;
+            cin >> entradaOpcao;
+            try
+            {
+                opcao = stoi(entradaOpcao);
+            }
+            catch (invalid_argument &)
+            {
+                opcao = -99;
+            }
 
             if (opcao == 0)
                 break;
@@ -115,12 +127,29 @@ int main()
     if (h == nullptr)
     {
         cout << "Crie um hospital (insira nome e capacidade): ";
-        cin >> nomeHospital >> capacidadeHospital;
+        cin >> nomeHospital;
+
+        // Loop com Try-Catch para validar a capacidade
+        while (true)
+        {
+            string entradaCapacidade;
+            cin >> entradaCapacidade;
+            try
+            {
+                capacidadeHospital = stoi(entradaCapacidade); // Tenta converter
+                if (capacidadeHospital <= 0)
+                    throw runtime_error("Deve ser positivo");
+                break; // Se deu certo, sai do loop
+            }
+            catch (...)
+            { // Pega qualquer erro (letra ou numero negativo)
+                cout << "Erro: Digite um numero valido para a capacidade: ";
+            }
+        }
+
         h = new Hospital(nomeHospital, capacidadeHospital);
         db.salvarHospital(nomeHospital, capacidadeHospital);
     }
-    // -----------------------------------
-
     while (true)
     {
         // --- NOVO BLOCO: RECUPERA E IMPRIME ALERTAS ---
@@ -156,30 +185,72 @@ int main()
         cout << "5. Atender Emergencia\n";
         cout << "0. Sair\n";
         cout << "Escolha: ";
-        cin >> escolha;
+        string entradaEscolha;
+        cin >> entradaEscolha;
+
+        try
+        {
+            escolha = stoi(entradaEscolha);
+        }
+        catch (invalid_argument &)
+        {
+            escolha = -1;
+        }
 
         switch (escolha)
         {
-        case 1: // CADASTRAR
+        case 1:
         {
             idPaciente++;
-            cout << "Digite: Nome, Idade, M/F: ";
-            cin >> nomepaciente >> idadePaciente >> sexoPaciente;
 
+            cout << "Nome do Paciente: ";
+            cin >> nomepaciente;
+
+            cout << "Idade: ";
+            while (!(cin >> idadePaciente) || idadePaciente < 0)
             {
-                std::lock_guard<std::mutex> lock(mtxHospital);
-                Paciente *p = new Paciente(idPaciente, nomepaciente, idadePaciente, sexoPaciente);
-                h->cadastrarPaciente(p);
-                db.salvarPaciente(idPaciente, nomepaciente, idadePaciente, sexoPaciente, h->get_nome());
+                cout << "Idade invalida! Digite um numero positivo: ";
+                cin.clear();
+                cin.ignore(10000, '\n');
             }
 
-            // --- FEEDBACK PARA O USUÁRIO ---
-            cout << "\n****************************************" << endl;
-            cout << " SUCEESSO! Paciente cadastrado." << endl;
-            cout << " Nome: " << nomepaciente << endl;
-            cout << " ID DO PACIENTE: " << idPaciente << "  <-- (Use este numero para buscar)" << endl;
-            cout << "****************************************\n"
-                 << endl;
+            do
+            {
+                cout << "Sexo (M/F): ";
+                cin >> sexoPaciente;
+                if (!sexoPaciente.empty())
+                    sexoPaciente[0] = toupper(sexoPaciente[0]);
+                if (sexoPaciente != "M" && sexoPaciente != "F")
+                    cout << "Opcao invalida! Use apenas M ou F." << endl;
+            } while (sexoPaciente != "M" && sexoPaciente != "F");
+
+            Paciente *p = nullptr;
+            try
+            {
+                std::lock_guard<std::mutex> lock(mtxHospital);
+
+                p = new Paciente(idPaciente, nomepaciente, idadePaciente, sexoPaciente);
+
+                h->cadastrarPaciente(p);
+
+                db.salvarPaciente(idPaciente, nomepaciente, idadePaciente, sexoPaciente, h->get_nome());
+
+                cout << "\n****************************************" << endl;
+                cout << " SUCESSO! Paciente cadastrado." << endl;
+                cout << " Nome: " << nomepaciente << endl;
+                cout << " ID DO PACIENTE: " << idPaciente << endl;
+                cout << "****************************************\n"
+                     << endl;
+            }
+            catch (runtime_error &e)
+            {
+
+                cout << "\n\033[1;31m[ERRO] Falha ao cadastrar: " << e.what() << "\033[0m\n"
+                     << endl;
+
+                delete p;
+                idPaciente--;
+            }
 
             break;
         }
@@ -293,16 +364,14 @@ int main()
                 cout << "\n--- Lista Rapida de Pacientes ---" << endl;
                 h->listarPacientes();
                 cout << "---------------------------------" << endl;
-                int idEmergencia;
-                cout << "digite o ID para atender: "; 
-              
-                cin >> idEmergencia;
+
+                int idEmergencia = lerID();
 
                 std::lock_guard<std::mutex> lock(mtxHospital);
                 if (h->tratarPaciente(idEmergencia))
                     cout << "Paciente tratado com sucesso!\n";
                 else
-                    cout << "Erro ao tratar.\n";
+                    cout << "Erro ao tratar,paciente não encontrado.\n";
             }
             catch (runtime_error &e)
             {

@@ -16,9 +16,9 @@ bool SensorOxigenio::alerta() const
 }
 void SensorOxigenio::exibirInfo() const
 {
-    std::cout << "Sensor Respiratorio:\n";
+    std::cout << "Sensor Saturacao de Oxigenio:\n";
     std::cout << "Valor: " << _valor << " sPo2" << "\n";
-    std::cout << "Faixa normal: " << _min << " - " << _max << " bpm\n";
+    std::cout << "Faixa normal: " << _min << " - " << _max << " sPo2\n";
     if (alerta())
         std::cout << "Alerta!!! Fora do intevalo esperado" << std::endl;
     else

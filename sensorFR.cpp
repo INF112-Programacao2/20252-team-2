@@ -18,7 +18,7 @@ void SensorRespiratorio::exibirInfo() const
 {
     std::cout << "Sensor Respiratorio:\n";
     std::cout << "Valor: " << _valor << " rpm" << "\n";
-    std::cout << "Faixa normal: " << _min << " - " << _max << " bpm\n";
+    std::cout << "Faixa normal: " << _min << " - " << _max << " rpm\n";
     if (alerta())
         std::cout << "Alerta!!! Fora do intevalo esperado" << std::endl;
     else

@@ -16,9 +16,9 @@ bool SensorTemperatura::alerta() const
 }
 void SensorTemperatura::exibirInfo() const
 {
-    std::cout << "Sensor Respiratorio:\n";
+    std::cout << "Sensor Temperatura Corporal:\n";
     std::cout << "Valor: " << _valor << " C" << "\n";
-    std::cout << "Faixa normal: " << _min << " - " << _max << " bpm\n";
+    std::cout << "Faixa normal: " << _min << " - " << _max << " C\n";
     if (alerta())
         std::cout << "Alerta!!! Fora do intevalo esperado" << std::endl;
     else

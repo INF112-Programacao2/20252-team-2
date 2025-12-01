@@ -1,15 +1,13 @@
 #include "hospital.h"
 #include "paciente.h"
-#include "simulador.h" // Necessário para chamar a função simular()
+#include "simulador.h"
 #include <iostream>
+#include <stdexcept>
 
 Hospital::Hospital(std::string nome, int capacidade)
     : _nome(nome), _capacidade(capacidade), _qtdPacientes(0)
 {
-    // Aloca um array de PONTEIROS
     _pacientes = new Paciente *[capacidade];
-
-    // Inicializa com nulo para segurança
     for (int i = 0; i < capacidade; i++)
     {
         _pacientes[i] = nullptr;
@@ -18,50 +16,46 @@ Hospital::Hospital(std::string nome, int capacidade)
 
 Hospital::~Hospital()
 {
-    // 1. Deleta os pacientes reais da memória
     for (int i = 0; i < _qtdPacientes; i++)
     {
         delete _pacientes[i];
     }
-    // 2. Deleta o array que segurava eles
     delete[] _pacientes;
 }
 
 void Hospital::cadastrarPaciente(Paciente *p)
 {
-    if (_qtdPacientes < _capacidade)
+
+    if (_qtdPacientes >= _capacidade)
     {
-        // O Hospital guarda o endereço original (assume a posse)
-        _pacientes[_qtdPacientes] = p;
-        _qtdPacientes++;
+        throw std::runtime_error("O hospital esta lotado! Nao e possivel aceitar novos pacientes.");
     }
-    else
-        std::cout << "O hospital esta lotado!" << std::endl;
+
+    _pacientes[_qtdPacientes] = p;
+    _qtdPacientes++;
 }
 
 void Hospital::removerPaciente(int idPaciente)
 {
     for (int i = 0; i < _qtdPacientes; i++)
     {
-        // Usa seta -> pois é ponteiro
         if (_pacientes[i]->get_id() == idPaciente)
         {
-            // Deleta o paciente da memória RAM
             delete _pacientes[i];
 
-            // Reorganiza o vetor para tampar o buraco
             for (int j = i; j < _qtdPacientes - 1; j++)
             {
                 _pacientes[j] = _pacientes[j + 1];
             }
-            _pacientes[_qtdPacientes - 1] = nullptr; // Zera o último
+            _pacientes[_qtdPacientes - 1] = nullptr;
             _qtdPacientes--;
 
             std::cout << "Paciente de ID: " << idPaciente << " removido com sucesso!" << std::endl;
             return;
         }
     }
-    std::cout << "Paciente nao encontrado!" << std::endl;
+
+    throw std::runtime_error("Paciente nao encontrado no sistema.");
 }
 
 Paciente *Hospital::buscarPaciente(int idPaciente)
@@ -70,7 +64,7 @@ Paciente *Hospital::buscarPaciente(int idPaciente)
     {
         if (_pacientes[i]->get_id() == idPaciente)
         {
-            return _pacientes[i]; // Retorna o ponteiro original
+            return _pacientes[i];
         }
     }
     return nullptr;
@@ -93,6 +87,9 @@ Paciente **Hospital::get_pacientes()
 
 void Hospital::listarPacientes()
 {
+    if (_qtdPacientes == 0)
+        std::cout << "Nenhum paciente internado no momento." << std::endl;
+
     for (int i = 0; i < _qtdPacientes; i++)
         std::cout << "ID: " << _pacientes[i]->get_id()
                   << " NOME: " << _pacientes[i]->get_nome()
@@ -104,8 +101,7 @@ void Hospital::atualizarSensores()
 {
     for (int i = 0; i < _qtdPacientes; i++)
     {
-        Paciente *p = _pacientes[i]; // Acessa via ponteiro
-
+        Paciente *p = _pacientes[i];
         if (p->get_sensorPressao())
             simular(p, p->get_sensorPressao());
         if (p->get_sensorTemperatura())
@@ -127,5 +123,6 @@ bool Hospital::tratarPaciente(int id)
         p->estabilizar();
         return true;
     }
-    return false;
+
+    throw std::runtime_error("Paciente nao encontrado para tratamento.");
 }
