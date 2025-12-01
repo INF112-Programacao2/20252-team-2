@@ -11,6 +11,8 @@ Este projeto transcende um simples cadastro de pacientes. Ele atua como um **Sim
 
 O sistema foi arquitetado para resolver um problema clássico de sistemas críticos: **como processar dados fisiológicos de múltiplos pacientes simultaneamente, garantindo integridade e persistência, sem travar a operação administrativa.**
 
+O sistema desenvolvido está alinhado com a ODS 3 - Saúde e Bem-Estar - dos Objetivos de Desenvolvimento Sustentável definidos pela ONU.
+
 ### 🧠 O "Motor" de Simulação Fisiológica
 O coração deste projeto é seu algoritmo de geração de dados. Diferente de sistemas básicos que utilizam apenas números aleatórios, nossa *engine* simula o comportamento biológico real através de conceitos de **Homeostase e Variabilidade Estocástica**:
 
