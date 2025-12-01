@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <mutex>
+#include <limits>
 #include "hospital.h"
 #include "paciente.h"
 #include "database.h"
@@ -12,19 +13,63 @@
 
 using namespace std;
 
-// Variaveis globais auxiliares
+// --- CORES E FORMATAÇÃO ---
+#define RESET "\033[0m"
+#define RED "\033[31m"     // Erro
+#define GREEN "\033[32m"   // Sucesso
+#define YELLOW "\033[33m"  // Alerta
+#define BLUE "\033[34m"    // Informação
+#define MAGENTA "\033[35m" // Detalhe
+#define CYAN "\033[36m"    // Títulos
+#define BOLD "\033[1m"     // Negrito
+
+// --- FUNÇÕES VISUAIS AUXILIARES ---
+
+void limparTela()
+{
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
+}
+
+void pausa()
+{
+    cout << "\n"
+         << YELLOW << "Pressione [ENTER] para continuar..." << RESET;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    cin.get();
+}
+
+void cabecalho(string titulo)
+{
+    limparTela();
+    cout << CYAN << "+===========================================================+" << RESET << endl;
+    cout << CYAN << "| " << BOLD << titulo << string(58 - titulo.length(), ' ') << "|" << RESET << endl;
+    cout << CYAN << "+===========================================================+" << RESET << endl;
+    cout << endl;
+}
+
+void linhaDivisoria()
+{
+    cout << BLUE << "-------------------------------------------------------------" << RESET << endl;
+}
+
+// --- VARIÁVEIS GLOBAIS ---
 int idPaciente = 0;
 string nomepaciente;
 int idadePaciente;
 string sexoPaciente;
 
+// --- FUNÇÃO DE LEITURA SEGURA ---
 int lerID()
 {
     string entrada;
     int id;
     while (true)
     {
-        cout << "Digite o ID do paciente: ";
+        cout << BOLD << "Digite o ID do paciente: " << RESET;
         cin >> entrada;
         try
         {
@@ -33,7 +78,7 @@ int lerID()
         }
         catch (invalid_argument &)
         {
-            cout << "Erro: Digite apenas numeros!" << endl;
+            cout << RED << ">> Erro: Digite apenas numeros!" << RESET << endl;
         }
     }
 }
@@ -47,31 +92,34 @@ int main()
     db.inicializar();
     idPaciente = db.getUltimoIdPaciente();
 
-    // Inicializar Gerenciador de Threads (Simulação em 2º Plano)
+    // Inicializar Gerenciador de Threads
     GerenciadorSimulacao sim;
 
     string nomeHospital;
     int capacidadeHospital;
     Hospital *h = nullptr;
 
-    cout << "--- SISTEMA HOSPITALAR ---" << endl;
-
-    // --- BLOCO DE LOGIN/CARREGAMENTO ---
+    // --- TELA DE INICIALIZAÇÃO ---
     while (h == nullptr)
     {
+        cabecalho("SISTEMA DE GESTAO HOSPITALAR - LOGIN");
+
         vector<pair<string, int>> hospitaisSalvos = db.listarHospitais();
 
         if (!hospitaisSalvos.empty())
         {
-            cout << "\n--- Hospitais Disponiveis ---" << endl;
+            cout << BOLD << "Selecione um Hospital existente:" << RESET << endl;
+            linhaDivisoria();
             for (size_t i = 0; i < hospitaisSalvos.size(); i++)
             {
-                cout << i + 1 << ". " << hospitaisSalvos[i].first
-                     << " (Capacidade: " << hospitaisSalvos[i].second << ")" << endl;
+                cout << " [" << CYAN << i + 1 << RESET << "] "
+                     << hospitaisSalvos[i].first
+                     << MAGENTA << " (Cap: " << hospitaisSalvos[i].second << ")" << RESET << endl;
             }
-            cout << "-----------------------------" << endl;
-            cout << "[0] Criar NOVO hospital" << endl;
-            cout << "[-1] DELETAR um hospital" << endl;
+            linhaDivisoria();
+            cout << " [" << GREEN << "0" << RESET << "] Criar NOVO hospital" << endl;
+            cout << " [" << RED << "-1" << RESET << "] DELETAR um hospital" << endl;
+            linhaDivisoria();
 
             int opcao;
             cout << "Escolha: ";
@@ -90,20 +138,27 @@ int main()
                 break;
             else if (opcao == -1)
             {
-                cout << "Digite o numero do hospital para deletar: ";
+                cout << "\nDigite o numero do hospital para " << RED << "DELETAR" << RESET << ": ";
                 int del;
                 cin >> del;
                 if (del > 0 && del <= (int)hospitaisSalvos.size())
                 {
                     string nomeParaDeletar = hospitaisSalvos[del - 1].first;
-                    cout << "Tem certeza? (S/N): ";
+                    cout << RED << "Tem certeza que deseja apagar '" << nomeParaDeletar << "'? (S/N): " << RESET;
                     char confirm;
                     cin >> confirm;
                     if (confirm == 'S' || confirm == 's')
+                    {
                         db.removerHospital(nomeParaDeletar);
+                        cout << GREEN << "Hospital removido!" << RESET << endl;
+                        pausa();
+                    }
                 }
                 else
-                    cout << "Opcao invalida!" << endl;
+                {
+                    cout << RED << "Opcao invalida!" << RESET << endl;
+                    pausa();
+                }
             }
             else if (opcao > 0 && opcao <= (int)hospitaisSalvos.size())
             {
@@ -115,10 +170,14 @@ int main()
                 int ultimoId = db.getUltimoIdPaciente();
                 if (ultimoId > idPaciente)
                     idPaciente = ultimoId;
-                cout << "Hospital carregado com sucesso!" << endl;
+                cout << GREEN << "\n>> Hospital carregado com sucesso!" << RESET << endl;
+                pausa();
             }
             else
-                cout << "Opcao invalida." << endl;
+            {
+                cout << RED << "Opcao invalida." << RESET << endl;
+                pausa();
+            }
         }
         else
             break;
@@ -126,66 +185,79 @@ int main()
 
     if (h == nullptr)
     {
-        cout << "Crie um hospital (insira nome e capacidade): ";
+        cabecalho("CRIACAO DE NOVO HOSPITAL");
+        cout << "Nome do Hospital: ";
         cin >> nomeHospital;
 
-        // Loop com Try-Catch para validar a capacidade
         while (true)
         {
+            cout << "Capacidade Maxima: ";
             string entradaCapacidade;
             cin >> entradaCapacidade;
             try
             {
-                capacidadeHospital = stoi(entradaCapacidade); // Tenta converter
+                capacidadeHospital = stoi(entradaCapacidade);
                 if (capacidadeHospital <= 0)
                     throw runtime_error("Deve ser positivo");
-                break; // Se deu certo, sai do loop
+                break;
             }
             catch (...)
-            { // Pega qualquer erro (letra ou numero negativo)
-                cout << "Erro: Digite um numero valido para a capacidade: ";
+            {
+                cout << RED << ">> Erro: Digite um numero valido (>0)." << RESET << endl;
             }
         }
 
         h = new Hospital(nomeHospital, capacidadeHospital);
         db.salvarHospital(nomeHospital, capacidadeHospital);
+        cout << GREEN << "\n>> Hospital criado com sucesso!" << RESET << endl;
+        pausa();
     }
+
+    // --- MENU PRINCIPAL (LOOP) ---
     while (true)
     {
-        // --- NOVO BLOCO: RECUPERA E IMPRIME ALERTAS ---
+        // Só limpa a tela se NÃO tiver alertas críticos recentes para mostrar
+
+        string tituloMenu = "HOSPITAL: " + h->get_nome();
+        cabecalho(tituloMenu);
+
+        // --- EXIBIÇÃO DE ALERTAS ---
         if (sim.estaRodando())
         {
-            vector<string> alertas = sim.pegarAlertas(); // Pega da caixa de correio
+            vector<string> alertas = sim.pegarAlertas();
             if (!alertas.empty())
             {
-                cout << "\n\033[1;31m========== NOVOS ALERTAS DETECTADOS ==========\033[0m" << endl;
+                cout << RED << BOLD << "\n[ ! ] NOVOS ALERTAS DETECTADOS:" << RESET << endl;
                 for (const string &msg : alertas)
                 {
-                    cout << " -> " << msg << endl;
+                    cout << RED << " -> " << msg << RESET << endl;
                 }
-                cout << "==============================================\n"
-                     << endl;
+                linhaDivisoria();
             }
         }
-        // ----------------------------------------------
 
-        int escolha;
-        cout << "\nHospital: " << h->get_nome() << endl;
-        cout << "Escolha uma opcao:\n";
-        cout << "1. Cadastrar novo paciente\n";
-        cout << "2. Deletar Paciente\n";
-        cout << "3. Buscar Paciente (Ver Sinais Vitais)\n";
+        // --- MENU ---
+        cout << CYAN << " GERENCIAMENTO DE PACIENTES" << RESET << endl;
+        cout << " [" << BOLD << "1" << RESET << "] Cadastrar Paciente" << endl;
+        cout << " [" << BOLD << "2" << RESET << "] Deletar Paciente" << endl;
+        cout << " [" << BOLD << "3" << RESET << "] Buscar/Monitorar Paciente" << endl;
+        cout << endl;
 
-        // Mostra se está rodando ou não
+        cout << CYAN << " CONTROLE DE SIMULACAO" << RESET << endl;
         if (sim.estaRodando())
-            cout << "4. [PARAR] Simulacao (Rodando em background...)\n";
+            cout << " [" << BOLD << "4" << RESET << "] " << RED << "PARAR Monitoramento" << RESET << " (Rodando...)" << endl;
         else
-            cout << "4. [INICIAR] Simulacao (Threads)\n";
+            cout << " [" << BOLD << "4" << RESET << "] " << GREEN << "INICIAR Monitoramento" << RESET << " (Threads)" << endl;
 
-        cout << "5. Atender Emergencia\n";
-        cout << "0. Sair\n";
-        cout << "Escolha: ";
+        cout << " [" << BOLD << "5" << RESET << "] " << YELLOW << "ATENDER EMERGENCIA" << RESET << endl;
+        linhaDivisoria();
+        cout << " [" << BOLD << "0" << RESET << "] Sair do Sistema" << endl;
+
+        cout << "\n"
+             << BOLD << "Escolha: " << RESET;
+
         string entradaEscolha;
+        int escolha;
         cin >> entradaEscolha;
 
         try
@@ -199,17 +271,19 @@ int main()
 
         switch (escolha)
         {
-        case 1:
+        case 1: // CADASTRAR
         {
+            cout << "\n"
+                 << CYAN << "--- NOVO CADASTRO ---" << RESET << endl;
             idPaciente++;
 
-            cout << "Nome do Paciente: ";
+            cout << "Nome: ";
             cin >> nomepaciente;
 
             cout << "Idade: ";
             while (!(cin >> idadePaciente) || idadePaciente < 0)
             {
-                cout << "Idade invalida! Digite um numero positivo: ";
+                cout << RED << ">> Idade invalida! " << RESET;
                 cin.clear();
                 cin.ignore(10000, '\n');
             }
@@ -221,170 +295,174 @@ int main()
                 if (!sexoPaciente.empty())
                     sexoPaciente[0] = toupper(sexoPaciente[0]);
                 if (sexoPaciente != "M" && sexoPaciente != "F")
-                    cout << "Opcao invalida! Use apenas M ou F." << endl;
+                    cout << RED << ">> Use apenas M ou F." << RESET << endl;
             } while (sexoPaciente != "M" && sexoPaciente != "F");
 
             Paciente *p = nullptr;
             try
             {
                 std::lock_guard<std::mutex> lock(mtxHospital);
-
                 p = new Paciente(idPaciente, nomepaciente, idadePaciente, sexoPaciente);
-
                 h->cadastrarPaciente(p);
-
                 db.salvarPaciente(idPaciente, nomepaciente, idadePaciente, sexoPaciente, h->get_nome());
 
-                cout << "\n****************************************" << endl;
-                cout << " SUCESSO! Paciente cadastrado." << endl;
-                cout << " Nome: " << nomepaciente << endl;
-                cout << " ID DO PACIENTE: " << idPaciente << endl;
-                cout << "****************************************\n"
-                     << endl;
+                cout << GREEN << "\n[OK] Paciente cadastrado com sucesso!" << RESET << endl;
+                cout << "ID Gerado: " << BOLD << idPaciente << RESET << endl;
             }
             catch (runtime_error &e)
             {
-
-                cout << "\n\033[1;31m[ERRO] Falha ao cadastrar: " << e.what() << "\033[0m\n"
-                     << endl;
-
+                cout << RED << "\n[ERRO] Falha ao cadastrar: " << e.what() << RESET << endl;
                 delete p;
                 idPaciente--;
             }
-
+            pausa();
             break;
         }
         case 2: // DELETAR
         {
+            cout << "\n"
+                 << CYAN << "--- REMOVER PACIENTE ---" << RESET << endl;
             h->listarPacientes();
+            linhaDivisoria();
             try
             {
                 int idBusca = lerID();
-                // Bloqueia para garantir que a simulação não acesse enquanto deletamos
                 std::lock_guard<std::mutex> lock(mtxHospital);
-
                 Paciente *p = h->buscarPaciente(idBusca);
+
                 if (p != nullptr)
                 {
-                    cout << "Paciente encontrado: " << p->get_nome() << endl;
-                    cout << "Confirmar remocao? (S/N): ";
+                    cout << YELLOW << "Remover paciente " << p->get_nome() << "? (S/N): " << RESET;
                     char x;
                     cin >> x;
                     if (x == 'S' || x == 's')
                     {
                         h->removerPaciente(idBusca);
                         db.removerPaciente(idBusca);
+                       
+                    }
+                    else
+                    {
+                        cout << "Operacao cancelada." << endl;
                     }
                 }
                 else
-                    cout << "Paciente nao encontrado.\n";
+                {
+                    cout << RED << "Paciente nao encontrado." << RESET << endl;
+                }
             }
             catch (runtime_error &e)
             {
-                cout << e.what() << endl;
+                cout << RED << "Erro: " << e.what() << RESET << endl;
             }
+            pausa();
             break;
         }
-        case 3: // BUSCAR E MOSTRAR SENSORES
+        case 3: // BUSCAR E MOSTRAR SENSORES (Visual Card)
         {
+            cout << "\n"
+                 << CYAN << "--- BUSCAR PACIENTE ---" << RESET << endl;
+            h->listarPacientes();
+            linhaDivisoria();
+
             try
             {
-                cout << "\n--- Lista Rapida de Pacientes ---" << endl;
-                h->listarPacientes();
-                cout << "---------------------------------" << endl;
-                // h->listarPacientes(); // Opcional, pode poluir se tiver muitos
                 int idBusca = lerID();
-
-                // Trava o mutex para ler os dados sem que a thread mude eles no meio da leitura
-                std::lock_guard<std::mutex> lock(mtxHospital);
+                std::lock_guard<std::mutex> lock(mtxHospital); // Trava leitura
 
                 Paciente *p = h->buscarPaciente(idBusca);
                 if (p != nullptr)
                 {
-                    cout << "\n--- FICHA DO PACIENTE ---" << endl;
-                    cout << "ID:    " << p->get_id() << endl;
-                    cout << "Nome:  " << p->get_nome() << endl;
-                    cout << "Idade: " << p->get_idade() << endl;
-                    cout << "Sexo:  " << p->get_sexo() << endl;
+                    // --- DESIGN DO CARTÃO DO PACIENTE ---
+                    limparTela();
+                    cout << CYAN << "+===========================================================+" << RESET << endl;
+                    cout << CYAN << "|                    FICHA MEDICA DIGITAL                   |" << RESET << endl;
+                    cout << CYAN << "+===========================================================+" << RESET << endl;
+                    cout << " ID:    " << BOLD << p->get_id() << RESET << "\t\tSexo: " << p->get_sexo() << endl;
+                    cout << " Nome:  " << BOLD << p->get_nome() << RESET << "\tIdade: " << p->get_idade() << " anos" << endl;
+                    cout << BLUE << "-------------------------------------------------------------" << RESET << endl;
+                    cout << BOLD << " SINAIS VITAIS (Tempo Real):" << RESET << endl;
+                    cout << endl;
 
-                    cout << "\n--- MONITORAMENTO EM TEMPO REAL ---" << endl;
-                    // Chama o lerValor() de cada sensor existente
-                    if (p->get_sensorBatimento())
+                    // Exibição dos Sensores com formatação
+                    auto printSensor = [](string label, Sensor *s)
                     {
-                        cout << "- ";
-                        p->get_sensorBatimento()->lerValor();
-                    }
-                    if (p->get_sensorOxigenio())
-                    {
-                        cout << "- ";
-                        p->get_sensorOxigenio()->lerValor();
-                    }
-                    if (p->get_sensorPressao())
-                    {
-                        cout << "- ";
-                        p->get_sensorPressao()->lerValor();
-                    }
-                    if (p->get_sensorTemperatura())
-                    {
-                        cout << "- ";
-                        p->get_sensorTemperatura()->lerValor();
-                    }
-                    if (p->get_sensorRespiratorio())
-                    {
-                        cout << "- ";
-                        p->get_sensorRespiratorio()->lerValor();
-                    }
-                    cout << "-----------------------------------\n";
+                        if (s)
+                        {
+                            cout << "  > " << label << ": ";
+                            s->lerValor(); 
+                        }
+                    };
+
+                    printSensor("Batimentos     ", p->get_sensorBatimento());
+                    printSensor("Oxigenacao     ", p->get_sensorOxigenio());
+                    printSensor("Pressao Art.   ", p->get_sensorPressao());
+                    printSensor("Temperatura    ", p->get_sensorTemperatura());
+                    printSensor("Freq. Resp.    ", p->get_sensorRespiratorio());
+
+                    cout << CYAN << "+===========================================================+" << RESET << endl;
                 }
                 else
-                    cout << "Paciente nao encontrado.\n";
+                {
+                    cout << RED << "Paciente nao encontrado." << RESET << endl;
+                }
             }
             catch (runtime_error &e)
             {
-                cout << e.what() << endl;
+                cout << RED << e.what() << RESET << endl;
             }
+            pausa();
             break;
         }
-        case 4: // LIGAR/DESLIGAR THREADS
+        case 4: // THREADS
         {
             if (sim.estaRodando())
             {
                 sim.parar();
+                cout << YELLOW << "\n>> Simulacao PAUSADA." << RESET << endl;
             }
             else
             {
                 sim.iniciar(h);
+                cout << GREEN << "\n>> Simulacao INICIADA em segundo plano." << RESET << endl;
             }
+            // Pequeno delay para ler a msg antes do refresh
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cin.get();
             break;
         }
-        case 5: // ATENDER EMERGENCIA
+        case 5: // EMERGENCIA
         {
+            cout << "\n"
+                 << RED << "--- ATENDIMENTO DE EMERGENCIA ---" << RESET << endl;
+            h->listarPacientes();
+            linhaDivisoria();
+
             try
             {
-                cout << "\n--- Lista Rapida de Pacientes ---" << endl;
-                h->listarPacientes();
-                cout << "---------------------------------" << endl;
-
                 int idEmergencia = lerID();
-
                 std::lock_guard<std::mutex> lock(mtxHospital);
+
                 if (h->tratarPaciente(idEmergencia))
-                    cout << "Paciente tratado com sucesso!\n";
+                    cout << GREEN << BOLD << ">> SUCESSO! Paciente estabilizado." << RESET << endl;
                 else
-                    cout << "Erro ao tratar,paciente não encontrado.\n";
+                    cout << RED << "Erro: Paciente nao encontrado." << RESET << endl;
             }
             catch (runtime_error &e)
             {
-                cout << e.what() << endl;
+                cout << RED << "Erro: " << e.what() << RESET << endl;
             }
+            pausa();
             break;
         }
         case 0:
-            sim.parar(); // Para a thread antes de sair
+            sim.parar();
             delete h;
+            cout << CYAN << "Encerrando sistema... Ate logo!" << RESET << endl;
             return 0;
         default:
-            cout << "Opcao invalida" << endl;
+            cout << RED << "Opcao invalida" << RESET << endl;
+            pausa();
             break;
         }
     }
