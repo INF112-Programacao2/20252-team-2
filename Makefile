@@ -1,67 +1,41 @@
-# --- Makefile Híbrido (Funciona em Windows e Linux) ---
+all: main.o database.o hospital.o paciente.o simulador.o sensor.o sensorSO.o sensorFC.o sensorFR.o sensorTC.o sensorPA.o sqlite3.o
+	g++ -o hospital_app main.o database.o hospital.o paciente.o simulador.o sensor.o sensorSO.o sensorFC.o sensorFR.o sensorTC.o sensorPA.o sqlite3.o -pthread -ldl
 
-# Nome do Executável Final
-TARGET = sistema_hospital
+main.o: main.cpp hospital.h database.h simulador.h
+	g++ -c main.cpp -std=c++17 -pthread
 
-# Compiladores
-CXX = g++       # Para C++
-CC  = gcc       # Para C (SQLite)
+database.o: database.cpp database.h sqlite3.h
+	g++ -c database.cpp -std=c++17 -pthread
 
-# Flags de Compilação
-# -Wall: Avisos de erro
-# -std=c++17: Versão moderna do C++
-# -g: Debug
-# -pthread: Necessário para Threads
-CXXFLAGS = -Wall -std=c++17 -g -pthread
-CFLAGS   = -std=c99 -g 
+hospital.o: hospital.cpp hospital.h
+	g++ -c hospital.cpp -std=c++17 -pthread
 
-# ---------------------------------------------------------
-# DETECÇÃO AUTOMÁTICA DO SISTEMA OPERACIONAL
-# ---------------------------------------------------------
-ifeq ($(OS),Windows_NT)
-    # Configuração para WINDOWS
-    # No Windows, não precisamos de -ldl
-    LDFLAGS = -pthread
-else
-    # Configuração para LINUX
-    # No Linux, PRECISAMOS de -ldl para o SQLite
-    LDFLAGS = -pthread -ldl
-endif
-# ---------------------------------------------------------
+paciente.o: paciente.cpp paciente.h
+	g++ -c paciente.cpp -std=c++17
 
-# Pega automaticamente todos os arquivos .cpp
-SRCS = $(wildcard *.cpp)
+simulador.o: simulador.cpp simulador.h
+	g++ -c simulador.cpp -std=c++17 -pthread
 
-# Cria a lista de objetos .o
-OBJS = $(SRCS:.cpp=.o)
+sensor.o: sensor.cpp sensor.h
+	g++ -c sensor.cpp -std=c++17
 
-# Adiciona o objeto do SQLite
-OBJS_ALL = $(OBJS) sqlite3.o
+sensorSO.o: sensorSO.cpp sensorSO.h
+	g++ -c sensorSO.cpp -std=c++17
 
-# --- Regras ---
+sensorFC.o: sensorFC.cpp sensorFC.h
+	g++ -c sensorFC.cpp -std=c++17
 
-all: $(TARGET)
+sensorFR.o: sensorFR.cpp sensorFR.h
+	g++ -c sensorFR.cpp -std=c++17
 
-# Linkagem
-$(TARGET): $(OBJS_ALL)
-	@echo "Linkando o executavel no sistema: $(OS)"
-	$(CXX) $(OBJS_ALL) -o $(TARGET) $(LDFLAGS)
-	@echo "Sucesso! Execute: ./$(TARGET)"
+sensorTC.o: sensorTC.cpp sensorTC.h
+	g++ -c sensorTC.cpp -std=c++17
 
-# Compila arquivos .cpp
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+sensorPA.o: sensorPA.cpp sensorPA.h
+	g++ -c sensorPA.cpp -std=c++17
 
-# Compila o SQLite separadamente
 sqlite3.o: sqlite3.c sqlite3.h
-	@echo "Compilando biblioteca SQLite..."
-	$(CC) $(CFLAGS) -c sqlite3.c -o sqlite3.o
+	gcc -c sqlite3.c -O2
 
-# Limpeza (Compatível com ambos)
 clean:
-	rm -f *.o $(TARGET) $(TARGET).exe
-
-run: $(TARGET)
-	./$(TARGET)
-
-.PHONY: all clean run
+	rm -f *.o hospital_app dados_hospital.db
