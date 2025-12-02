@@ -1,6 +1,7 @@
 #include "sensorFC.h"
 #include <iostream>
 
+// Construtor e destrutor
 SensorBatimento::SensorBatimento() : Sensor("Frequencia Cardiaca", 80, "bpm", 60, 120)
 {
 }
@@ -8,6 +9,7 @@ SensorBatimento::SensorBatimento() : Sensor("Frequencia Cardiaca", 80, "bpm", 60
 SensorBatimento::~SensorBatimento()
 {
 }
+// Metodos
 bool SensorBatimento::alerta() const
 {
     if (_valor < _min || _valor > _max)

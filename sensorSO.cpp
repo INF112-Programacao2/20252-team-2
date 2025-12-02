@@ -1,19 +1,21 @@
 #include "sensorSO.h"
 #include <iostream>
-
-SensorOxigenio::SensorOxigenio() : Sensor("Saturacao de Oxigenio", 100, "sPo2", 95, 100)
+// construtor
+SensorOxigenio::SensorOxigenio() : Sensor("Saturacao de Oxigenio", 97.5, "sPo2", 95, 100)
 {
 }
-
+// destrutor
 SensorOxigenio::~SensorOxigenio()
 {
 }
+// alerta de emergencia
 bool SensorOxigenio::alerta() const
 {
-    if (_valor < _min || _valor > _max)
+    if (_valor < _min)
         return true;
     return false;
 }
+// exibe valores
 void SensorOxigenio::exibirInfo() const
 {
     std::cout << "Sensor Saturacao de Oxigenio:\n";
@@ -24,6 +26,7 @@ void SensorOxigenio::exibirInfo() const
     else
         std::cout << "Situacao normal" << std::endl;
 }
+// retornar o valor para ver o valor de um paciente
 void SensorOxigenio::lerValor()
 {
     std::cout << _valor << " sPo2" << std::endl;

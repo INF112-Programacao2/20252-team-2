@@ -1,6 +1,7 @@
 #include "paciente.h"
 #include <iostream>
 
+// Construtor padrao
 Paciente::Paciente() : _id(0), _nome(""), _idade(0), _sexo(""),
                        _sensorPressao(nullptr), _sensorTemperatura(nullptr),
                        _sensorOxigenio(nullptr), _sensorBatimento(nullptr),
@@ -9,6 +10,7 @@ Paciente::Paciente() : _id(0), _nome(""), _idade(0), _sexo(""),
 {
 }
 
+// Construtor com parametros
 Paciente::Paciente(int id, std::string nome, int idade, std::string sexo)
     : _id(id), _nome(nome), _idade(idade), _sexo(sexo)
 {
@@ -18,6 +20,7 @@ Paciente::Paciente(int id, std::string nome, int idade, std::string sexo)
     _sensorRespiratorio = new SensorRespiratorio;
     _sensorTemperatura = new SensorTemperatura;
 }
+// Destrutor
 Paciente::~Paciente()
 {
     delete _sensorBatimento;
@@ -26,6 +29,8 @@ Paciente::~Paciente()
     delete _sensorRespiratorio;
     delete _sensorTemperatura;
 }
+
+// Getters
 int Paciente::get_id()
 {
     return _id;
@@ -63,6 +68,7 @@ SensorRespiratorio *Paciente::get_sensorRespiratorio()
     return _sensorRespiratorio;
 }
 
+// Estabiliza todos os sensores. Volta o valor para o meio exato entre min e max (Estado perfeito)
 void Paciente::estabilizar()
 {
     if (_sensorBatimento)

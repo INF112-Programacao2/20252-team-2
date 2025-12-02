@@ -1,13 +1,16 @@
 #include "sensorFR.h"
 #include <iostream>
 
+// Construtor e destrutor
 SensorRespiratorio::SensorRespiratorio() : Sensor("Frequencia Respiratoria", 18, "rpm", 12, 24)
 {
 }
 
+// Destrutor
 SensorRespiratorio::~SensorRespiratorio()
 {
 }
+// Metodos
 bool SensorRespiratorio::alerta() const
 {
     if (_valor < _min || _valor > _max)

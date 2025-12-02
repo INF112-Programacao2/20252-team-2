@@ -13,7 +13,7 @@
 
 using namespace std;
 
-// --- CORES E FORMATAÇÃO ---
+// CORES E FORMATAÇÃO
 #define RESET "\033[0m"
 #define RED "\033[31m"     // Erro
 #define GREEN "\033[32m"   // Sucesso
@@ -23,7 +23,7 @@ using namespace std;
 #define CYAN "\033[36m"    // Títulos
 #define BOLD "\033[1m"     // Negrito
 
-// --- FUNÇÕES VISUAIS AUXILIARES ---
+// FUNÇÕES VISUAIS AUXILIARES
 
 void limparTela()
 {
@@ -33,7 +33,7 @@ void limparTela()
     system("clear");
 #endif
 }
-
+// funçao de pausa entre as acoes
 void pausa()
 {
     cout << "\n"
@@ -41,7 +41,7 @@ void pausa()
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     cin.get();
 }
-
+// cabeçalho com nome do hospital
 void cabecalho(string titulo)
 {
     limparTela();
@@ -50,19 +50,19 @@ void cabecalho(string titulo)
     cout << CYAN << "+===========================================================+" << RESET << endl;
     cout << endl;
 }
-
+// linha para dividir as partes
 void linhaDivisoria()
 {
     cout << BLUE << "-------------------------------------------------------------" << RESET << endl;
 }
 
-// --- VARIÁVEIS GLOBAIS ---
+// VARIÁVEIS GLOBAIS
 int idPaciente = 0;
 string nomepaciente;
 int idadePaciente;
 string sexoPaciente;
 
-// --- FUNÇÃO DE LEITURA SEGURA ---
+// FUNÇÃO DE LEITURA
 int lerID()
 {
     string entrada;
@@ -99,13 +99,14 @@ int main()
     int capacidadeHospital;
     Hospital *h = nullptr;
 
-    // --- TELA DE INICIALIZAÇÃO ---
+    // TELA DE INICIALIZAÇÃO
     while (h == nullptr)
     {
         cabecalho("SISTEMA DE GESTAO HOSPITALAR - LOGIN");
 
         vector<pair<string, int>> hospitaisSalvos = db.listarHospitais();
 
+        // Caso hospital não esteja vazio (sem informação alguma) o programa roda livremente
         if (!hospitaisSalvos.empty())
         {
             cout << BOLD << "Selecione um Hospital existente:" << RESET << endl;
@@ -121,6 +122,7 @@ int main()
             cout << " [" << RED << "-1" << RESET << "] DELETAR um hospital" << endl;
             linhaDivisoria();
 
+            // Escolher o que fazer
             int opcao;
             cout << "Escolha: ";
             string entradaOpcao;
@@ -138,16 +140,41 @@ int main()
                 break;
             else if (opcao == -1)
             {
-                cout << "\nDigite o numero do hospital para " << RED << "DELETAR" << RESET << ": ";
                 int del;
-                cin >> del;
+                string del1;
+                // Até opção ser válida para deletar
+                while (true)
+                {
+                    cout << "\nDigite o numero do hospital para " << RED << "DELETAR" << RESET << ": ";
+                    cin >> del1;
+                    try
+                    {
+                        del = stoi(del1);
+                        if (del <= 0 || del > (int)hospitaisSalvos.size())
+                            throw runtime_error("Erro! ");
+                        break;
+                    }
+                    catch (...)
+                    {
+                        cout << RED << ">> Digite um numero valido. " << RESET << endl;
+                    }
+                }
+                // Apagar Hospital
                 if (del > 0 && del <= (int)hospitaisSalvos.size())
                 {
                     string nomeParaDeletar = hospitaisSalvos[del - 1].first;
-                    cout << RED << "Tem certeza que deseja apagar '" << nomeParaDeletar << "'? (S/N): " << RESET;
-                    char confirm;
-                    cin >> confirm;
-                    if (confirm == 'S' || confirm == 's')
+
+                    string confirm;
+                    do
+                    {
+                        cout << RED << "Tem certeza que deseja apagar '" << nomeParaDeletar << "'? (S/N): " << RESET;
+                        cin >> confirm;
+                        if (!confirm.empty())
+                            confirm[0] = toupper(confirm[0]);
+                        if (confirm != "S" && confirm != "N")
+                            cout << RED << ">> Use apenas S ou N." << RESET << endl;
+                    } while (confirm != "S" && confirm != "N");
+                    if (confirm == "S")
                     {
                         db.removerHospital(nomeParaDeletar);
                         cout << GREEN << "Hospital removido!" << RESET << endl;
@@ -159,6 +186,7 @@ int main()
                     cout << RED << "Opcao invalida!" << RESET << endl;
                     pausa();
                 }
+                // Abrir/Carregar um hospital selecionado
             }
             else if (opcao > 0 && opcao <= (int)hospitaisSalvos.size())
             {
@@ -183,11 +211,13 @@ int main()
             break;
     }
 
+    // Criar um Hospital
     if (h == nullptr)
     {
+        cin.ignore();
         cabecalho("CRIACAO DE NOVO HOSPITAL");
         cout << "Nome do Hospital: ";
-        cin >> nomeHospital;
+        getline(cin, nomeHospital);
 
         while (true)
         {
@@ -213,10 +243,9 @@ int main()
         pausa();
     }
 
-    // --- MENU PRINCIPAL (LOOP) ---
+    // MENU PRINCIPAL (LOOP)
     while (true)
     {
-        // Só limpa a tela se NÃO tiver alertas críticos recentes para mostrar
 
         string tituloMenu = "HOSPITAL: " + h->get_nome();
         cabecalho(tituloMenu);
@@ -235,7 +264,7 @@ int main()
             }
         }
 
-        // --- MENU ---
+        // MENU
         cout << CYAN << " GERENCIAMENTO DE PACIENTES" << RESET << endl;
         cout << " [" << BOLD << "1" << RESET << "] Cadastrar Paciente" << endl;
         cout << " [" << BOLD << "2" << RESET << "] Deletar Paciente" << endl;
@@ -281,11 +310,13 @@ int main()
             getline(cin, nomepaciente);
 
             cout << "Idade: ";
-            while (!(cin >> idadePaciente) || idadePaciente < 0)
+            while (!(cin >> idadePaciente) || idadePaciente < 0 || idadePaciente > 120)
             {
-                cout << RED << ">> Idade invalida! " << RESET;
+                cout << RED << ">> Idade invalida! \n"
+                     << RESET;
                 cin.clear();
                 cin.ignore(10000, '\n');
+                cout << "Idade: ";
             }
 
             do
@@ -335,7 +366,6 @@ int main()
                 string nomeParaConfirmar;
                 bool encontrado = false;
 
-                // --- FASE 1: BUSCA ---
                 {
                     std::lock_guard<std::mutex> lock(mtxHospital);
                     Paciente *p = h->buscarPaciente(idBusca);
@@ -391,7 +421,7 @@ int main()
             pausa();
             break;
         }
-        case 3: // BUSCAR E MOSTRAR SENSORES (Visual Card)
+        case 3: // BUSCAR E MOSTRAR SENSORES
         {
             cout << "\n"
                  << CYAN << "--- BUSCAR PACIENTE ---" << RESET << endl;
@@ -401,12 +431,12 @@ int main()
             try
             {
                 int idBusca = lerID();
-                std::lock_guard<std::mutex> lock(mtxHospital); // Trava leitura
+                std::lock_guard<std::mutex> lock(mtxHospital);
 
                 Paciente *p = h->buscarPaciente(idBusca);
                 if (p != nullptr)
                 {
-                    // --- DESIGN DO CARTÃO DO PACIENTE ---
+                    // CARTÃO DO PACIENTE
                     limparTela();
                     cout << CYAN << "+===========================================================+" << RESET << endl;
                     cout << CYAN << "|                    FICHA MEDICA DIGITAL                   |" << RESET << endl;
@@ -459,7 +489,7 @@ int main()
                 sim.iniciar(h);
                 cout << GREEN << "\n>> Simulacao INICIADA em segundo plano." << RESET << endl;
             }
-            // Pequeno delay para ler a msg antes do refresh
+
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
             cin.get();
             break;

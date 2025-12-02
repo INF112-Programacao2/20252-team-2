@@ -7,9 +7,11 @@ Sensor::Sensor(std::string tipo, double valor, std::string unidade, double min, 
 Sensor::~Sensor()
 {
 }
+// getters e setters
 void Sensor::set_tipo()
 {
 }
+
 double Sensor::get_valor()
 {
     return _valor;
@@ -37,6 +39,7 @@ void Sensor::set_valor(double novoValor)
 {
     _valor = novoValor;
 }
+// métodos
 bool Sensor::alerta() const
 {
     return false;

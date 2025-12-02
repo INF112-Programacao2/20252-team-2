@@ -4,6 +4,7 @@
 #include <iostream>
 #include <stdexcept>
 
+// Construtor
 Hospital::Hospital(std::string nome, int capacidade)
     : _capacidade(capacidade), _qtdPacientes(0), _nome(nome)
 {
@@ -14,6 +15,7 @@ Hospital::Hospital(std::string nome, int capacidade)
     }
 }
 
+// Destrutor
 Hospital::~Hospital()
 {
     for (int i = 0; i < _qtdPacientes; i++)
@@ -23,6 +25,7 @@ Hospital::~Hospital()
     delete[] _pacientes;
 }
 
+// Cadastrar um novo paciente ao hospital selecionado
 void Hospital::cadastrarPaciente(Paciente *p)
 {
 
@@ -35,6 +38,7 @@ void Hospital::cadastrarPaciente(Paciente *p)
     _qtdPacientes++;
 }
 
+// Remover um paciente do hospital selecionado
 void Hospital::removerPaciente(int idPaciente)
 {
     for (int i = 0; i < _qtdPacientes; i++)
@@ -58,6 +62,7 @@ void Hospital::removerPaciente(int idPaciente)
     throw std::runtime_error("Paciente nao encontrado no sistema.");
 }
 
+// Buscar paciente do Hospital selecionado
 Paciente *Hospital::buscarPaciente(int idPaciente)
 {
     for (int i = 0; i < _qtdPacientes; i++)
@@ -70,6 +75,7 @@ Paciente *Hospital::buscarPaciente(int idPaciente)
     return nullptr;
 }
 
+// Funções getters
 std::string Hospital::get_nome()
 {
     return _nome;
@@ -85,6 +91,7 @@ Paciente **Hospital::get_pacientes()
     return _pacientes;
 }
 
+// Lista todos os pacientes
 void Hospital::listarPacientes()
 {
     if (_qtdPacientes == 0)
@@ -97,6 +104,7 @@ void Hospital::listarPacientes()
                   << " SEXO: " << _pacientes[i]->get_sexo() << std::endl;
 }
 
+// Parte da simulação
 void Hospital::atualizarSensores()
 {
     for (int i = 0; i < _qtdPacientes; i++)
@@ -115,6 +123,7 @@ void Hospital::atualizarSensores()
     }
 }
 
+// Normalizar o paciente que estiver em emergência
 bool Hospital::tratarPaciente(int id)
 {
     Paciente *p = buscarPaciente(id);

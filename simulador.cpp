@@ -8,19 +8,19 @@ std::mutex mtxHospital;
 
 #include <sstream>
 
-std::string simular(Paciente *p, Sensor *sensor)
+std::string simular(Paciente *p, Sensor *sensor) // Funçao para simular algum sensor desejado
 {
-    double var = (sensor->get_max() - sensor->get_min()) / 10;
+    double var = (sensor->get_max() - sensor->get_min()) / 10; // Decide uma variavel baseado no range do limite saudavel (1/10 do limite)
     double v = sensor->get_valor();
-    double ruido = ((rand() % 100) / 100.0 - 0.5) * var;
-    double normal = (sensor->get_min() + sensor->get_max()) / 2.0;
-    double homeostase = (normal - v) * 0.05;
+    double ruido = ((rand() % 100) / 85.0 - 0.5) * var;            // Decide uma porcentagem aleatoria para que a variaçao nao seja sempre igual
+    double normal = (sensor->get_min() + sensor->get_max()) / 2.0; // Valor medio
+    double homeostase = (normal - v) * 0.05;                       // Outra pequena variaçao para manter o sensor o mais realista possivel
 
-    sensor->set_valor(v + ruido + homeostase);
+    sensor->set_valor(v + ruido + homeostase); // Define novo valor para o sensor
 
-    if (sensor->alerta())
+    if (sensor->alerta()) // Se estiver fora dos valores esperados
     {
-        std::stringstream ss;
+        std::stringstream ss; // imprime alerta
 
         ss << "\033[31m" << "(!) ALERTA CRITICO: " << "\033[0m"
            << "Paciente " << p->get_nome() << " (ID: " << p->get_id() << ") - "
@@ -32,7 +32,7 @@ std::string simular(Paciente *p, Sensor *sensor)
     return "";
 }
 
-// --- Gerenciador ---
+// Gerenciador
 
 GerenciadorSimulacao::GerenciadorSimulacao() : _ativo(false) {}
 
@@ -72,7 +72,7 @@ std::vector<std::string> GerenciadorSimulacao::pegarAlertas()
 
 void GerenciadorSimulacao::loop(Hospital *h)
 {
-    while (_ativo)
+    while (_ativo) // Funcao para nao imterromper cin
     {
         {
             std::lock_guard<std::mutex> lock(mtxHospital);
@@ -106,7 +106,33 @@ void GerenciadorSimulacao::loop(Hospital *h)
                             _bufferAlertas.push_back(msg);
                         }
                     }
-                    // ... etc
+                    if (p->get_sensorPressao())
+                    {
+                        msg = simular(p, p->get_sensorPressao());
+                        if (!msg.empty())
+                        {
+                            std::lock_guard<std::mutex> lockAlertas(_mtxAlertas);
+                            _bufferAlertas.push_back(msg);
+                        }
+                    }
+                    if (p->get_sensorRespiratorio())
+                    {
+                        msg = simular(p, p->get_sensorRespiratorio());
+                        if (!msg.empty())
+                        {
+                            std::lock_guard<std::mutex> lockAlertas(_mtxAlertas);
+                            _bufferAlertas.push_back(msg);
+                        }
+                    }
+                    if (p->get_sensorTemperatura())
+                    {
+                        msg = simular(p, p->get_sensorTemperatura());
+                        if (!msg.empty())
+                        {
+                            std::lock_guard<std::mutex> lockAlertas(_mtxAlertas);
+                            _bufferAlertas.push_back(msg);
+                        }
+                    }
                 }
             }
         }

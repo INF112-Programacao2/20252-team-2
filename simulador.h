@@ -8,13 +8,16 @@
 #include <vector>
 #include <string>
 
-// Forward Declaration
+// threads são necessárias para que o simulador possa ocorrer em segundo plano simultaneamente com o programa
+// mutex serve para proteger de um possivel crash, já que apresenta thread
+// atomic é uma variavel especial a prova de threads
+// lock_guard auxilia o mutex a proteger
 class Hospital;
 
 extern std::mutex mtxHospital;
 
 std::string simular(Paciente *p, Sensor *sensor);
-
+// classe de simulaçoa
 class GerenciadorSimulacao
 {
 private:
