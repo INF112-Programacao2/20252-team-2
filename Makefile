@@ -1,4 +1,5 @@
 all: main.o database.o hospital.o paciente.o simulador.o sensor.o sensorSO.o sensorFC.o sensorFR.o sensorTC.o sensorPA.o sqlite3.o
+	@echo "--- Criando o executavel: hospital_app ---"
 	g++ -o hospital_app main.o database.o hospital.o paciente.o simulador.o sensor.o sensorSO.o sensorFC.o sensorFR.o sensorTC.o sensorPA.o sqlite3.o -pthread -ldl
 
 main.o: main.cpp hospital.h database.h simulador.h
