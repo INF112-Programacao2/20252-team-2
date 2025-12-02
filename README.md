@@ -90,7 +90,7 @@ O sistema utiliza **Polimorfismo** para instanciar diferentes tipos de sensores 
 | :--- | :---: | :--- | :---: |
 | **Oxímetro** 🅾 | `% SpO2` | Simula a saturação de oxigênio no sangue. Quedas bruscas acionam alerta de Hipóxia. | 95% - 100% |
 | **Batimento Cardíaco** ❤️ | `BPM` | Monitora a frequência cardíaca. Variações rápidas indicam Taquicardia ou Bradicardia. | 60 - 120 BPM |
-| **Termômetro** 🌡️ | `°C` | Acompanha a temperatura corporal com **inércia térmica** (mudanças lentas e graduais). | 35.0°C - 38.0°C |
+| **Termômetro** 🌡️ | `°C` | Acompanha a temperatura corporal com **inércia térmica** (mudanças lentas e graduais). | 36.0°C - 38.0°C |
 | **Frequência Resp.** 🌬️ | `rpm` | Monitora ciclos de inspiração/expiração. Correlacionado com níveis de ansiedade simulada. | 12 - 24 rpm |
 | **Pressão Arterial** 🩸 | `mmHg` | Sensor composto (Sistólica/Diastólica). Simula a tensão vascular e o débito cardíaco. | 60 - 110 mmHg |
 
